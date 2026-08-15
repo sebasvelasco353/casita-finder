@@ -14,7 +14,7 @@ export default function Button({
   console.log(variant);
 
   const getVariantStyles = () => {
-    return variant === "primary" ? 'bg-orange-47 text-gray-99 font-semibold text-sm' : 'font-semibold text-sm'
+    return variant === "primary" ? 'bg-orange-47 text-gray-99' : 'border-orange-47 border bg-transparent text-orange-47'
   }
-  return <button className={`pointer py-3 px-6 rounded-full ${getVariantStyles()}`} onClick={handleClick}>{children}</button>;
+  return <button className={`cursor-pointer py-3 px-6 rounded-full font-semibold text-sm ${getVariantStyles()}`} onClick={handleClick}>{children}</button>;
 }
