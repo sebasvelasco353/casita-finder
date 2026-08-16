@@ -28,3 +28,7 @@ dist-ssr
 # Service account keys (secretos reales, nunca al repo)
 *firebase-adminsdk*.json
 *serviceAccount*.json
+
+processed-photos-cache/*
+bucket-casas-files
+bucket-casas-files.zip
