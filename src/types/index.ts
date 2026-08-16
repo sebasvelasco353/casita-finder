@@ -2,7 +2,6 @@ import type { Timestamp } from "firebase/firestore";
 
 export type Property = {
   id: string;
-  cover?: string | null;
   photos: string[];
   available: boolean;
   propertyType: "apartamento" | "casa" | "habitacion" | "bodega";

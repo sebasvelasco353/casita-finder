@@ -32,3 +32,6 @@ dist-ssr
 processed-photos-cache/*
 bucket-casas-files
 bucket-casas-files.zip
+bucket-casas-files/*
+processed-photos-cache/*
+bucket-casas-files.zip
