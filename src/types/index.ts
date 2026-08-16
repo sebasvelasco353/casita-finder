@@ -19,3 +19,23 @@ export type Property = {
   updatedAt: Timestamp;
   description?: string;
 };
+
+export type Filters = {
+  city?: Property["city"];
+  propertyType?: Property["propertyType"];
+  zone?: Property["zone"];
+  maxPrice?: string;
+  furnished?: Property["furnished"];
+  pets?: Property["petsAllowed"];
+};
+
+export type User = {
+  id: string;
+  name: string;
+  lastName: string;
+  displayName: string;
+  email: string;
+  phoneNumber?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};

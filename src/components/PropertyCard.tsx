@@ -8,6 +8,8 @@ import {
   PawPrintIcon,
 } from "lucide-react";
 import { formatDistance, formatPrice } from "../utils/lib";
+import { useQuery } from "@tanstack/react-query";
+import { getUserById } from "../firebase/queries/users";
 
 interface PropertyCardPropsInterface {
   data: Property;
@@ -34,9 +36,19 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
     price,
     description,
     updatedAt,
+    ownerId,
   } = data;
 
-  // const whatsappHref = `https://wa.me/${whatsappNumber}?text=Hola%20${contactName}%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
+  const { data: userData } = useQuery({
+    queryKey: ["user", `user-${ownerId}`],
+    queryFn: async () => {
+      return await getUserById(ownerId);
+    },
+    staleTime: 1000 * 60 * 20, // 20 minutes
+    enabled: !!ownerId,
+  });
+
+  const whatsappHref = `https://wa.me/${userData?.phoneNumber}?text=Hola%20${userData?.displayName}%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
 
   return (
     <article className="w-full h-126 md:h-137 bg-gray-99 border border-gray-91 rounded-3xl p-3 flex flex-col">
@@ -76,7 +88,7 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
       <p className="mt-2 text-sm text-orange-42 line-clamp-4">{description}</p>
 
       <p className="mt-2 text-xs text-orange-42">
-        {zone} · {neighborhood} · Piso {floor} · contactName
+        {zone} · {neighborhood} · Piso {floor} · {userData?.displayName}
       </p>
 
       <div className="mt-auto flex flex-col gap-2">
@@ -84,7 +96,7 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
           {formatPrice(price)}
         </div>
         <a
-          // href={whatsappHref}
+          href={whatsappHref}
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-center gap-2 bg-orange-47 text-gray-99 rounded-full py-2.5 PX-2 text-sm"

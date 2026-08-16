@@ -1,6 +1,6 @@
 import Dropdown from "./Dropdown";
 
-const cityOptions = [
+export const cityOptions = [
   { label: "Todas", value: "" },
   { label: "Bogotá", value: "bogota" },
   { label: "Medellín", value: "medellin" },
@@ -8,7 +8,12 @@ const cityOptions = [
   { label: "Armenia", value: "armenia" },
 ];
 
-const propertyTypeOptions = [
+// value (slug del dropdown) -> label (nombre como se guarda/muestra), ej. "medellin" -> "Medellín"
+export const cityLabelByValue: Record<string, string> = Object.fromEntries(
+  cityOptions.filter((option) => option.value).map((option) => [option.value, option.label]),
+);
+
+export const propertyTypeOptions = [
   { label: "Todos", value: "" },
   { label: "Casa", value: "casa" },
   { label: "Apartamento", value: "apartamento" },
@@ -16,7 +21,7 @@ const propertyTypeOptions = [
   { label: "Bodega", value: "bodega" },
 ];
 
-const zoneOptions = [
+export const zoneOptions = [
   { label: "Todas", value: "" },
   { label: "Norte", value: "norte" },
   { label: "Sur", value: "sur" },
@@ -25,20 +30,23 @@ const zoneOptions = [
   { label: "Occidente", value: "occidente" },
 ];
 
-const maxPriceOptions = [
+export const maxPriceOptions = [
   { label: "Sin límite", value: "" },
   { label: "Gratis", value: "gratis" },
   { label: "Hasta $500.000", value: "500000" },
   { label: "Hasta $1.000.000", value: "1000000" },
+  { label: "Hasta $2.000.000", value: "2000000" },
+  { label: "Hasta $3.000.000", value: "3000000" },
+  { label: "Hasta $5.000.000", value: "5000000" },
 ];
 
-const furnishedOptions = [
+export const furnishedOptions = [
   { label: "Todos", value: "" },
   { label: "Sí", value: "si" },
   { label: "No", value: "no" },
 ];
 
-const petsOptions = [
+export const petsOptions = [
   { label: "Todos", value: "" },
   { label: "Sí", value: "si" },
   { label: "No", value: "no" },

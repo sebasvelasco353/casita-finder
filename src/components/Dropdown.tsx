@@ -10,8 +10,7 @@ interface DropdownPropsInterface {
   options: DropdownOptionInterface[];
   placeholder?: string;
   value?: string;
-  defaultValue?: string;
-  onChange?: (value: string) => void;
+  onChange: (value: string) => void;
   variant?: "pill" | "field";
 }
 
@@ -19,20 +18,19 @@ export default function Dropdown({
   options,
   placeholder = "Seleccionar",
   value,
-  defaultValue,
   onChange,
   variant = "pill",
 }: DropdownPropsInterface) {
-  const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
 
-  const isControlled = value !== undefined;
-  const selectedValue = isControlled ? value : internalValue;
-  const selectedOption = options.find((option) => option.value === selectedValue);
-  const displayLabel = selectedOption?.label ?? placeholder;
+  const selectedOption = options.find((option) => option.value === value);
+  // "pill" (filtros) mantiene el label fijo -- la selección ya se ve en la
+  // barra de pills; "field" (forms) sí muestra el valor elegido.
+  const displayLabel =
+    variant === "pill" ? placeholder : (selectedOption?.label ?? placeholder);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -84,8 +82,7 @@ export default function Dropdown({
   }, [isOpen]);
 
   function handleSelect(option: DropdownOptionInterface) {
-    if (!isControlled) setInternalValue(option.value);
-    onChange?.(option.value);
+    onChange(option.value);
     setIsOpen(false);
   }
 
@@ -133,10 +130,10 @@ export default function Dropdown({
                 <button
                   type="button"
                   role="option"
-                  aria-selected={option.value === selectedValue}
+                  aria-selected={option.value === value}
                   onClick={() => handleSelect(option)}
                   className={`w-full text-left px-4 py-2 text-sm cursor-pointer hover:bg-gray-93 ${
-                    option.value === selectedValue ? "text-orange-47 font-semibold" : "text-orange-18"
+                    option.value === value ? "text-orange-47 font-semibold" : "text-orange-18"
                   }`}
                 >
                   {option.label}

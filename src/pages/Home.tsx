@@ -2,14 +2,15 @@ import { useState } from "react";
 import Button from "../components/Button";
 import Container from "../components/Container";
 import FilterBar, { type FiltersInterface } from "../components/FilterBar";
+import FilterPills from "../components/FilterPills";
 import Pill from "../components/Pill";
 import PropertyCard from "../components/PropertyCard";
 import casitaIcon from "../assets/casita_icon.svg";
 import searchIcon from "../assets/search_icon.svg";
 import PublishPropertyModal from "../components/modals/PublishPropertyModal";
 import Layout from "../components/Layout";
-import { useQuery } from "@tanstack/react-query";
-import { getPaginatedProperties } from "../firebase/queries/getPaginatedProperties";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getPaginatedProperties } from "../firebase/queries/properties";
 import {
   Empty,
   EmptyDescription,
@@ -24,15 +25,31 @@ function Home() {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
 
   function handleFilterChange(key: keyof FiltersInterface, value: string) {
-    setFilters((current) => ({ ...current, [key]: value }));
+    setFilters((current) => {
+      const next = { ...current };
+      if (value) next[key] = value;
+      else delete next[key];
+      return next;
+    });
   }
 
-  const { isLoading, isError, data } = useQuery({
-    queryKey: ["properties"],
-    queryFn: async () => {
-      return await getPaginatedProperties();
-    },
+  const {
+    isLoading,
+    isError,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["properties", filters],
+    queryFn: ({ pageParam }) => getPaginatedProperties(filters, pageParam),
+    initialPageParam: undefined as
+      | Awaited<ReturnType<typeof getPaginatedProperties>>["nextCursor"]
+      | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+
+  const properties = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <Layout>
@@ -69,7 +86,7 @@ function Home() {
               <h2 className="font-bold text-3xl text-orange-18">
                 Casitas disponibles
               </h2>
-              <Pill variant="tertiary">{data?.length ?? 0} avisos</Pill>
+              <Pill variant="tertiary">{properties.length} avisos</Pill>
             </div>
             <Button
               className="max-w-52 mt-2.5 md:mt-0"
@@ -80,16 +97,29 @@ function Home() {
             </Button>
           </div>
           <FilterBar filters={filters} onFilterChange={handleFilterChange} />
+          <FilterPills filters={filters} onFilterChange={handleFilterChange} />
 
           {isLoading && <LoadingProperties />}
           {isError && <ErrorProperties />}
 
-          {!isLoading && !isError && data && (
-            <div className="grid md:grid-cols-3 gap-4 py-9">
-              {data.map((property) => (
-                <PropertyCard key={property.id} data={property} />
-              ))}
-            </div>
+          {!isLoading && !isError && (
+            <>
+              <div className="grid md:grid-cols-3 gap-4 py-9">
+                {properties.map((property) => (
+                  <PropertyCard key={property.id} data={property} />
+                ))}
+              </div>
+              {hasNextPage && (
+                <Button
+                  variant="secondary"
+                  className="mx-auto"
+                  disabled={isFetchingNextPage}
+                  handleClick={() => fetchNextPage()}
+                >
+                  {isFetchingNextPage ? "Cargando..." : "Cargar más"}
+                </Button>
+              )}
+            </>
           )}
         </Container>
       </section>

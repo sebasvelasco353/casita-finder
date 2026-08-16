@@ -4,6 +4,7 @@ import FirebasePage from "./firebase/FirebasePage";
 import Home from "./pages/Home";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./providers/query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/firebase" element={<FirebasePage />} />
           </Routes>
+          <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
