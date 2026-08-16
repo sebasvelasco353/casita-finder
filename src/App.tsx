@@ -11,6 +11,7 @@ import { filterProperties } from "./utils/filter";
 import casitaIcon from "./assets/casita_icon.svg";
 import searchIcon from "./assets/search_icon.svg";
 import Footer from "./components/Footer";
+import PublishPropertyModal from "./components/modals/PublishPropertyModal";
 
 // Mock data
 const properties: PropertyDataInterface[] = [
@@ -194,6 +195,7 @@ const properties: PropertyDataInterface[] = [
 
 function App() {
   const [filters, setFilters] = useState<FiltersInterface>({});
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
 
   function handleFilterChange(key: keyof FiltersInterface, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -215,7 +217,7 @@ function App() {
             espacio disponible con quienes buscan dónde vivir.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-2.5 mt-5">
-            <Button handleClick={() => console.log("click")}>
+            <Button handleClick={() => setIsPublishModalOpen(true)}>
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
             </Button>
@@ -239,7 +241,7 @@ function App() {
               </h2>
               <Pill variant="tertiary">{filteredProperties.length} avisos</Pill>
             </div>
-            <Button className="max-w-52 mt-2.5 md:mt-0" handleClick={() => console.log("click")}>
+            <Button className="max-w-52 mt-2.5 md:mt-0" handleClick={() => setIsPublishModalOpen(true)}>
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
             </Button>
@@ -253,6 +255,10 @@ function App() {
         </Container>
       </section>
       <Footer />
+      <PublishPropertyModal
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+      />
     </div>
   );
 }

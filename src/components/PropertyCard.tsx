@@ -63,7 +63,7 @@ export default function PropertyCard({ propertyData }: PropertyCardPropsInterfac
   } = propertyData;
 
   const formattedPrice = `$${new Intl.NumberFormat("es-CO").format(price)}`;
-  const whatsappHref = `https://wa.me/${whatsappNumber}`;
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=Hola%20${contactName}%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
 
   return (
     <article className="w-full h-126 md:h-137 bg-gray-99 border border-gray-91 rounded-3xl p-3 flex flex-col">

@@ -12,6 +12,7 @@ interface DropdownPropsInterface {
   value?: string;
   defaultValue?: string;
   onChange?: (value: string) => void;
+  variant?: "pill" | "field";
 }
 
 export default function Dropdown({
@@ -20,6 +21,7 @@ export default function Dropdown({
   value,
   defaultValue,
   onChange,
+  variant = "pill",
 }: DropdownPropsInterface) {
   const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,14 +89,21 @@ export default function Dropdown({
     setIsOpen(false);
   }
 
+  const triggerClassName =
+    variant === "field"
+      ? `cursor-pointer w-full inline-flex items-center justify-between gap-2 py-2.5 px-4 rounded-lg border border-gray-91 bg-gray-98 text-sm font-medium ${
+          selectedOption ? "text-orange-18" : "text-orange-42/60"
+        }`
+      : "cursor-pointer inline-flex items-center gap-2 py-2.5 px-5 rounded-full border border-gray-91 bg-gray-98 text-orange-18 text-sm font-medium";
+
   return (
-    <div className="relative inline-block" ref={containerRef}>
+    <div className={variant === "field" ? "relative w-full" : "relative inline-block"} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className="cursor-pointer inline-flex items-center gap-2 py-2.5 px-5 rounded-full border border-gray-91 bg-gray-98 text-orange-18 text-sm font-medium"
+        className={triggerClassName}
       >
         <span>{displayLabel}</span>
         <svg
