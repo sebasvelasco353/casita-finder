@@ -3,6 +3,6 @@
 [ ] Pagina de "perfil": Interes de la persona que busca casa
 [ ] Seccion de casas que han hecho match
 [x] Login funcional - en home
-[ ] "ver mis casas" y editar casa
-[ ] Fix bug de no abre whatsapp pq no encuentra el numero
-[ ] Eliminar opcion de usuario de whatsapp pq no logramos linkearlo
+[x] "ver mis casas" y editar casa
+[X] Fix bug de no abre whatsapp pq no encuentra el numero
+[X] Eliminar opcion de usuario de whatsapp pq no logramos linkearlo

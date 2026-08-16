@@ -9,6 +9,7 @@ import {
   serverTimestamp,
   setDoc,
   startAfter,
+  updateDoc,
   where,
   type DocumentData,
   type QueryConstraint,
@@ -127,4 +128,56 @@ export async function getPropertyById(propertyId: string) {
   const snap = await getDoc(doc(db, "properties", propertyId));
   if (!snap.exists()) return undefined;
   return { ...snap.data(), id: snap.id } as Property;
+}
+
+export async function getPropertiesByOwner(ownerId: string) {
+  const snap = await getDocs(
+    query(collection(db, "properties"), where("ownerId", "==", ownerId)),
+  );
+
+  // sorted client-side to avoid needing a composite index (ownerId + updatedAt)
+  const items = snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Property);
+  items.sort(
+    (a, b) => (b.updatedAt?.toMillis() ?? 0) - (a.updatedAt?.toMillis() ?? 0),
+  );
+  return items;
+}
+
+export interface EditPropertyFormDataInterface {
+  available: boolean;
+  propertyType: string;
+  city: string;
+  zone: string;
+  neighborhood: string;
+  floor: string;
+  price: string;
+  bedrooms: "1" | "2" | "3" | "4+";
+  furnished: boolean;
+  petsAllowed: boolean;
+  parkingType: "publico" | "privado" | "sin_parqueadero";
+  description: string;
+}
+
+export async function updateProperty(
+  propertyId: string,
+  formData: EditPropertyFormDataInterface,
+) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Debes iniciar sesión");
+
+  await updateDoc(doc(db, "properties", propertyId), {
+    available: formData.available,
+    propertyType: formData.propertyType as Property["propertyType"],
+    city: formData.city,
+    zone: formData.zone,
+    neighborhood: formData.neighborhood,
+    floor: Number(formData.floor) || 0,
+    price: Number(formData.price) || 0,
+    bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
+    furnished: formData.furnished,
+    petsAllowed: formData.petsAllowed,
+    parkingType: formData.parkingType,
+    description: formData.description || "",
+    updatedAt: serverTimestamp(),
+  });
 }
