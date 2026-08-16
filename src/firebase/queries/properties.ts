@@ -1,18 +1,22 @@
 import {
   collection,
+  doc,
   getDocs,
   limit,
   orderBy,
   query,
+  serverTimestamp,
+  setDoc,
   startAfter,
   where,
   type DocumentData,
   type QueryConstraint,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { db } from "../config";
+import { auth, db } from "../config";
 import type { Filters, Property } from "../../types";
 import type { FiltersInterface } from "../../utils/filters";
+import type { PublishPropertyFormDataInterface } from "../../components/modals/PublishPropertyModal";
 
 const PAGE_SIZE = 20;
 
@@ -72,6 +76,43 @@ export async function getPaginatedProperties(
       : undefined;
 
   return { items, nextCursor };
+}
+
+function toPropertyDoc(
+  formData: PublishPropertyFormDataInterface,
+) {
+  return {
+    available: true,
+    propertyType: formData.propertyType as Property["propertyType"],
+    city: formData.city,
+    zone: formData.zone,
+    neighborhood: formData.neighborhood,
+    floor: Number(formData.floor) || 0,
+    price: Number(formData.price) || 0,
+    bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
+    furnished: formData.furnished,
+    petsAllowed: formData.petsAllowed,
+    parkingType: formData.parkingType,
+    description: formData.description || "",
+    cover: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+}
+
+export async function createProperty(formData: PublishPropertyFormDataInterface) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Debes iniciar sesión");
+
+  // TODO: Add the id to the document
+  // TODO: Add images
+  const propertyRef = doc(collection(db, "properties"));
+  await setDoc(propertyRef, {
+    ownerId: user.uid,
+    ...toPropertyDoc(formData),
+  });
+
+  return propertyRef.id;
 }
 
 export async function getPropertyById(propertyId: string) {
