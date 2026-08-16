@@ -12,7 +12,7 @@ export interface PropertyDataInterface {
   city: string;
   zone: string;
   neighborhood: string;
-  floor: string;
+  floor: number;
   bedrooms: number;
   furnished: boolean;
   petsAllowed: boolean;
