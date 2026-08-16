@@ -51,6 +51,7 @@ function Home() {
   });
 
   const properties = data?.pages.flatMap((page) => page.items) ?? [];
+  console.log(properties);
 
   return (
     <Layout>
@@ -81,7 +82,7 @@ function Home() {
 
       {/* available casitas */}
       <section>
-        <Container className="items-start">
+        <Container className="items-start min-h-[65vh]">
           <div className="flex flex-col md:flex-row py-9 w-full justify-between">
             <div className="flex flex-row gap-2.5 items-center">
               <h2 className="font-bold text-3xl text-orange-18">

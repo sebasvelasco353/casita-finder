@@ -8,7 +8,10 @@ service cloud.firestore {
 
     match /properties/{propertyId} {
       allow read: if true;
-      allow write: if false;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.ownerId == request.auth.uid;
     }
 
     match /casas/{casaId} {

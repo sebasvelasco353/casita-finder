@@ -1,18 +1,24 @@
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
   query,
+  serverTimestamp,
+  setDoc,
   startAfter,
+  updateDoc,
   where,
   type DocumentData,
   type QueryConstraint,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { db } from "../config";
+import { auth, db } from "../config";
 import type { Filters, Property } from "../../types";
 import type { FiltersInterface } from "../../utils/filters";
+import type { PublishPropertyFormDataInterface } from "../../components/modals/PublishPropertyModal";
 
 const PAGE_SIZE = 20;
 
@@ -65,7 +71,7 @@ export async function getPaginatedProperties(
     query(collection(db, "properties"), ...constraints),
   );
 
-  const items = snap.docs.map((d) => d.data() as Property);
+  const items = snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Property);
   const nextCursor =
     snap.docs.length === PAGE_SIZE
       ? snap.docs[snap.docs.length - 1]
@@ -74,15 +80,104 @@ export async function getPaginatedProperties(
   return { items, nextCursor };
 }
 
+function toContactNumber(formData: PublishPropertyFormDataInterface) {
+  return `${formData.countryCode}${formData.phoneNumber}`.replace(
+    /[^\d+]/g,
+    "",
+  );
+}
+
+function toPropertyDoc(
+  formData: PublishPropertyFormDataInterface,
+) {
+  return {
+    available: true,
+    propertyType: formData.propertyType as Property["propertyType"],
+    city: formData.city,
+    zone: formData.zone,
+    neighborhood: formData.neighborhood,
+    floor: Number(formData.floor) || 0,
+    price: Number(formData.price) || 0,
+    bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
+    furnished: formData.furnished,
+    petsAllowed: formData.petsAllowed,
+    parkingType: formData.parkingType,
+    description: formData.description || "",
+    contact_number: toContactNumber(formData),
+    cover: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+}
+
+export async function createProperty(formData: PublishPropertyFormDataInterface) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Debes iniciar sesión");
+
+  // TODO: Add images
+  const propertyRef = doc(collection(db, "properties"));
+  await setDoc(propertyRef, {
+    ownerId: user.uid,
+    ...toPropertyDoc(formData),
+  });
+
+  return propertyRef.id;
+}
+
 export async function getPropertyById(propertyId: string) {
+  const snap = await getDoc(doc(db, "properties", propertyId));
+  if (!snap.exists()) return undefined;
+  return { ...snap.data(), id: snap.id } as Property;
+}
+
+export async function getPropertiesByOwner(ownerId: string) {
   const snap = await getDocs(
-    query(
-      collection(db, "properties"),
-      where("id", "==", propertyId),
-      limit(1),
-    ),
+    query(collection(db, "properties"), where("ownerId", "==", ownerId)),
   );
 
-  const data = snap.docs.map((d) => d.data()) as Property[];
-  return data[0];
+  // sorted client-side to avoid needing a composite index (ownerId + updatedAt)
+  const items = snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Property);
+  items.sort(
+    (a, b) => (b.updatedAt?.toMillis() ?? 0) - (a.updatedAt?.toMillis() ?? 0),
+  );
+  return items;
+}
+
+export interface EditPropertyFormDataInterface {
+  available: boolean;
+  propertyType: string;
+  city: string;
+  zone: string;
+  neighborhood: string;
+  floor: string;
+  price: string;
+  bedrooms: "1" | "2" | "3" | "4+";
+  furnished: boolean;
+  petsAllowed: boolean;
+  parkingType: "publico" | "privado" | "sin_parqueadero";
+  description: string;
+}
+
+export async function updateProperty(
+  propertyId: string,
+  formData: EditPropertyFormDataInterface,
+) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Debes iniciar sesión");
+
+  await updateDoc(doc(db, "properties", propertyId), {
+    available: formData.available,
+    propertyType: formData.propertyType as Property["propertyType"],
+    city: formData.city,
+    zone: formData.zone,
+    neighborhood: formData.neighborhood,
+    floor: Number(formData.floor) || 0,
+    price: Number(formData.price) || 0,
+    bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
+    furnished: formData.furnished,
+    petsAllowed: formData.petsAllowed,
+    parkingType: formData.parkingType,
+    description: formData.description || "",
+    updatedAt: serverTimestamp(),
+  });
 }

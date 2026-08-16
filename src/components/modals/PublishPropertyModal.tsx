@@ -4,12 +4,13 @@ import TextField from "../TextField";
 import ToggleGroup from "../ToggleGroup";
 import Dropdown from "../Dropdown";
 import Button from "../Button";
+import { createProperty } from "../../firebase/queries/properties";
 
-interface PublishPropertyFormDataInterface {
+export interface PublishPropertyFormDataInterface {
   firstName: string;
   lastName: string;
   email: string;
-  contactMethod: "telefono" | "whatsapp";
+  contactMethod: "whatsapp";
   countryCode: string;
   phoneNumber: string;
   city: string;
@@ -29,7 +30,7 @@ const initialFormData: PublishPropertyFormDataInterface = {
   firstName: "",
   lastName: "",
   email: "",
-  contactMethod: "telefono",
+  contactMethod: "whatsapp",
   countryCode: "+57",
   phoneNumber: "",
   city: "",
@@ -46,7 +47,6 @@ const initialFormData: PublishPropertyFormDataInterface = {
 };
 
 const contactMethodOptions = [
-  { label: "Teléfono", value: "telefono" },
   { label: "WhatsApp", value: "whatsapp" },
 ];
 
@@ -123,6 +123,8 @@ function Divider(): ReactNode {
 export default function PublishPropertyModal({ isOpen, onClose }: PublishPropertyModalPropsInterface) {
   const [formData, setFormData] = useState<PublishPropertyFormDataInterface>(initialFormData);
   const [step, setStep] = useState<"form" | "confirm">("form");
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   function updateField<K extends keyof PublishPropertyFormDataInterface>(
     key: K,
@@ -137,14 +139,23 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
   }
 
   function handleBackToEdit() {
+    setPublishError(null);
     setStep("form");
   }
 
-  function handleConfirmPublish() {
-    console.log(formData);
-    setFormData(initialFormData);
-    setStep("form");
-    onClose();
+  async function handleConfirmPublish() {
+    setPublishError(null);
+    setIsPublishing(true);
+    try {
+      await createProperty(formData);
+      setFormData(initialFormData);
+      setStep("form");
+      onClose();
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : "Algo salió mal");
+    } finally {
+      setIsPublishing(false);
+    }
   }
 
   function handleCancel() {
@@ -168,11 +179,19 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
           <p className="text-sm text-orange-42">
             Tu anuncio se publicará con el estado <span className="font-semibold">Disponible</span>.
           </p>
+          {publishError && (
+            <p className="text-sm text-red-600">{publishError}</p>
+          )}
           <div className="flex flex-col gap-3 mt-2">
-            <Button className="w-full" handleClick={handleConfirmPublish}>
-              Confirmar y publicar
+            <Button className="w-full" disabled={isPublishing} handleClick={handleConfirmPublish}>
+              {isPublishing ? "Publicando..." : "Confirmar y publicar"}
             </Button>
-            <Button variant="secondary" className="w-full" handleClick={handleBackToEdit}>
+            <Button
+              variant="secondary"
+              className="w-full"
+              disabled={isPublishing}
+              handleClick={handleBackToEdit}
+            >
               Volver a editar
             </Button>
           </div>
