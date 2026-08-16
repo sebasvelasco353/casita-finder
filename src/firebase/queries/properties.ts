@@ -79,6 +79,13 @@ export async function getPaginatedProperties(
   return { items, nextCursor };
 }
 
+function toContactNumber(formData: PublishPropertyFormDataInterface) {
+  return `${formData.countryCode}${formData.phoneNumber}`.replace(
+    /[^\d+]/g,
+    "",
+  );
+}
+
 function toPropertyDoc(
   formData: PublishPropertyFormDataInterface,
 ) {
@@ -95,6 +102,7 @@ function toPropertyDoc(
     petsAllowed: formData.petsAllowed,
     parkingType: formData.parkingType,
     description: formData.description || "",
+    contact_number: toContactNumber(formData),
     cover: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

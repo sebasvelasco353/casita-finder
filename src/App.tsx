@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { AuthProvider } from "./firebase/auth";
-import FirebasePage from "./firebase/FirebasePage";
+// import FirebasePage from "./firebase/FirebasePage";
 import Home from "./pages/Home";
-import CasitaView from "./views/CasitaView";
+import CasitaView from "./pages/CasitaView";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./providers/query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -14,7 +14,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/firebase" element={<FirebasePage />} />
+            {/* <Route path="/firebase" element={<FirebasePage />} /> */}
             <Route path="/property/:id/view" element={<CasitaView />} />
           </Routes>
           <ReactQueryDevtools initialIsOpen={false} />

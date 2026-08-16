@@ -21,7 +21,6 @@ import {
   EmptyTitle,
 } from "../components/empty";
 import { getPropertyById } from "../firebase/queries/properties";
-import { getUserById } from "../firebase/queries/users";
 import { formatPrice } from "../utils/lib";
 import {
   cityLabelByValue,
@@ -48,12 +47,6 @@ export default function CasitaView() {
     queryKey: ["property", id],
     queryFn: () => getPropertyById(id as string),
     enabled: !!id,
-  });
-
-  const { data: owner } = useQuery({
-    queryKey: ["user", `user-${property?.ownerId}`],
-    queryFn: () => getUserById(property!.ownerId),
-    enabled: !!property?.ownerId,
   });
 
   return (
@@ -98,7 +91,9 @@ export default function CasitaView() {
         )}
 
         {!isLoading && property && (
-          <PropertyDetail property={property} ownerName={owner?.displayName} ownerPhone={owner?.phoneNumber} />
+          <PropertyDetail
+            property={property}
+          />
         )}
       </Container>
     </Layout>
@@ -107,12 +102,8 @@ export default function CasitaView() {
 
 function PropertyDetail({
   property,
-  ownerName,
-  ownerPhone,
 }: {
   property: Property;
-  ownerName?: string;
-  ownerPhone?: string;
 }) {
   const {
     cover,
@@ -127,11 +118,13 @@ function PropertyDetail({
     price,
     available,
     createdAt,
+    contact_number
   } = property;
 
   const title = `${propertyTypeLabelByValue[propertyType] ?? propertyType} en ${zoneLabelByValue[zone] ?? zone}`;
 
-  const whatsappHref = `https://wa.me/${ownerPhone}?text=Hola%20${ownerName}%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
+
+  const whatsappHref = `https://wa.me/${contact_number}?text=Hola%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
 
   return (
     <div className="w-full">
@@ -198,12 +191,6 @@ function PropertyDetail({
           {cityLabelByValue[city] ?? city} · Piso {floor}
         </p>
       </div>
-
-      <div className="mt-4">
-        <h2 className="font-bold text-orange-18">Contacto</h2>
-        <p className="text-sm text-orange-42 mt-1">{ownerName ?? "—"}</p>
-      </div>
-
       <a
         href={whatsappHref}
         target="_blank"

@@ -10,7 +10,7 @@ export interface PublishPropertyFormDataInterface {
   firstName: string;
   lastName: string;
   email: string;
-  contactMethod: "telefono" | "whatsapp";
+  contactMethod: "whatsapp";
   countryCode: string;
   phoneNumber: string;
   city: string;
@@ -30,7 +30,7 @@ const initialFormData: PublishPropertyFormDataInterface = {
   firstName: "",
   lastName: "",
   email: "",
-  contactMethod: "telefono",
+  contactMethod: "whatsapp",
   countryCode: "+57",
   phoneNumber: "",
   city: "",
@@ -47,7 +47,6 @@ const initialFormData: PublishPropertyFormDataInterface = {
 };
 
 const contactMethodOptions = [
-  { label: "Teléfono", value: "telefono" },
   { label: "WhatsApp", value: "whatsapp" },
 ];
 

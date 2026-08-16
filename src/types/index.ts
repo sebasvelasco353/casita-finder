@@ -15,6 +15,7 @@ export type Property = {
   parkingType?: "publico" | "privado" | "sin_parqueadero";
   price: number;
   ownerId: string;
+  contact_number?: string;
   address?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
