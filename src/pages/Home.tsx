@@ -4,14 +4,20 @@ import Container from "../components/Container";
 import FilterBar, { type FiltersInterface } from "../components/FilterBar";
 import Pill from "../components/Pill";
 import PropertyCard from "../components/PropertyCard";
-import { filterProperties } from "../utils/filter";
 import casitaIcon from "../assets/casita_icon.svg";
 import searchIcon from "../assets/search_icon.svg";
 import PublishPropertyModal from "../components/modals/PublishPropertyModal";
 import Layout from "../components/Layout";
-import { resolveProperties } from "../data/seed";
-
-const properties = resolveProperties();
+import { useQuery } from "@tanstack/react-query";
+import { getPaginatedProperties } from "../firebase/queries/getPaginatedProperties";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../components/empty";
+import { LoaderIcon, TriangleAlert } from "lucide-react";
 
 function Home() {
   const [filters, setFilters] = useState<FiltersInterface>({});
@@ -21,7 +27,12 @@ function Home() {
     setFilters((current) => ({ ...current, [key]: value }));
   }
 
-  const filteredProperties = filterProperties(properties, filters);
+  const { isLoading, isError, data } = useQuery({
+    queryKey: ["properties"],
+    queryFn: async () => {
+      return await getPaginatedProperties();
+    },
+  });
 
   return (
     <Layout>
@@ -49,6 +60,7 @@ function Home() {
           </div>
         </Container>
       </section>
+
       {/* available casitas */}
       <section>
         <Container className="items-start">
@@ -57,7 +69,7 @@ function Home() {
               <h2 className="font-bold text-3xl text-orange-18">
                 Casitas disponibles
               </h2>
-              <Pill variant="tertiary">{filteredProperties.length} avisos</Pill>
+              <Pill variant="tertiary">{data?.length ?? 0} avisos</Pill>
             </div>
             <Button
               className="max-w-52 mt-2.5 md:mt-0"
@@ -68,11 +80,17 @@ function Home() {
             </Button>
           </div>
           <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-          <div className="grid md:grid-cols-4 gap-4 py-9">
-            {filteredProperties.map((property) => (
-              <PropertyCard key={property.id} propertyData={property} />
-            ))}
-          </div>
+
+          {isLoading && <LoadingProperties />}
+          {isError && <ErrorProperties />}
+
+          {!isLoading && !isError && data && (
+            <div className="grid md:grid-cols-3 gap-4 py-9">
+              {data.map((property) => (
+                <PropertyCard key={property.id} data={property} />
+              ))}
+            </div>
+          )}
         </Container>
       </section>
 
@@ -85,3 +103,36 @@ function Home() {
 }
 
 export default Home;
+
+const LoadingProperties = () => {
+  return (
+    <Empty className="border border-zinc-300 border-dashed bg-white mt-4">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <LoaderIcon className="animate-spin" />
+        </EmptyMedia>
+        <EmptyTitle>Cargando</EmptyTitle>
+        <EmptyDescription>
+          Espera unos segundos mientras cargamos las casitas disponibles.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+};
+
+const ErrorProperties = () => {
+  return (
+    <Empty className="border border-red-300 border-dashed bg-white mt-4">
+      <EmptyHeader>
+        <EmptyMedia variant="icon" className="bg-red-100">
+          <TriangleAlert className="text-red-500" />
+        </EmptyMedia>
+        <EmptyTitle>Error</EmptyTitle>
+        <EmptyDescription>
+          Ocurrió un error al cargar las casitas disponibles. Por favor, intenta
+          recargar la página o vuelve más tarde.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+};
