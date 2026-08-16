@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -69,7 +70,7 @@ export async function getPaginatedProperties(
     query(collection(db, "properties"), ...constraints),
   );
 
-  const items = snap.docs.map((d) => d.data() as Property);
+  const items = snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Property);
   const nextCursor =
     snap.docs.length === PAGE_SIZE
       ? snap.docs[snap.docs.length - 1]
@@ -104,7 +105,6 @@ export async function createProperty(formData: PublishPropertyFormDataInterface)
   const user = auth.currentUser;
   if (!user) throw new Error("Debes iniciar sesión");
 
-  // TODO: Add the id to the document
   // TODO: Add images
   const propertyRef = doc(collection(db, "properties"));
   await setDoc(propertyRef, {
@@ -116,14 +116,7 @@ export async function createProperty(formData: PublishPropertyFormDataInterface)
 }
 
 export async function getPropertyById(propertyId: string) {
-  const snap = await getDocs(
-    query(
-      collection(db, "properties"),
-      where("id", "==", propertyId),
-      limit(1),
-    ),
-  );
-
-  const data = snap.docs.map((d) => d.data()) as Property[];
-  return data[0];
+  const snap = await getDoc(doc(db, "properties", propertyId));
+  if (!snap.exists()) return undefined;
+  return { ...snap.data(), id: snap.id } as Property;
 }

@@ -53,7 +53,6 @@ function Home() {
   const properties = data?.pages.flatMap((page) => page.items) ?? [];
   console.log(properties);
 
-
   return (
     <Layout>
       <section className="bg-gray-91 py-10">
