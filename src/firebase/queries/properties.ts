@@ -73,3 +73,16 @@ export async function getPaginatedProperties(
 
   return { items, nextCursor };
 }
+
+export async function getPropertyById(propertyId: string) {
+  const snap = await getDocs(
+    query(
+      collection(db, "properties"),
+      where("id", "==", propertyId),
+      limit(1),
+    ),
+  );
+
+  const data = snap.docs.map((d) => d.data()) as Property[];
+  return data[0];
+}
