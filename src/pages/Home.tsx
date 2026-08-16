@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Button from "../components/Button";
 import Container from "../components/Container";
-import FilterBar, { type FiltersInterface } from "../components/FilterBar";
+import FilterBar from "../components/FilterBar";
+import type { FiltersInterface } from "../utils/filters";
 import FilterPills from "../components/FilterPills";
 import Pill from "../components/Pill";
 import PropertyCard from "../components/PropertyCard";

@@ -8,6 +8,7 @@ import {
   PawPrintIcon,
 } from "lucide-react";
 import { formatDistance, formatPrice } from "../utils/lib";
+import { cityLabelByValue } from "../utils/filters";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "../firebase/queries/users";
 
@@ -58,14 +59,14 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
         ) : (
           <HouseIcon className="w-8 h-8" />
         )}
-        <span className="absolute top-3 left-3 py-0.5 px-1.5 rounded-full text-xs font-medium bg-gray-93 text-orange-18">
+        <span className="absolute top-3 left-3 py-0.5 px-1.5 rounded-full text-xs font-medium bg-gray-93 text-orange-18 capitalize">
           {formatDistance(updatedAt.toDate())}
         </span>
       </div>
 
       <div className="flex flex-wrap gap-2 mt-2">
         <Pill variant="primary">{propertyTypeLabels[propertyType]}</Pill>
-        <Pill variant="secondary">{city}</Pill>
+        <Pill variant="secondary">{cityLabelByValue[city] ?? city}</Pill>
         <Pill variant="secondary">
           <MapPin className="w-3 h-3" />
           {zone}

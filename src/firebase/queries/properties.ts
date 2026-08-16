@@ -12,9 +12,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../config";
 import type { Filters, Property } from "../../types";
-import type { FiltersInterface } from "../../components/FilterBar";
+import type { FiltersInterface } from "../../utils/filters";
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 20;
 
 // FilterBar's dropdowns only speak strings ("si"/"no"/""); this is the one
 // place that turns that UI shape into the typed shape Firestore needs.

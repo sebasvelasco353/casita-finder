@@ -1,35 +1,10 @@
 import { X } from "lucide-react";
 import Pill from "./Pill";
 import {
-  cityOptions,
-  propertyTypeOptions,
-  zoneOptions,
-  maxPriceOptions,
-  furnishedOptions,
-  petsOptions,
+  FILTER_FIELD_LABELS,
+  FILTER_FIELD_OPTIONS,
   type FiltersInterface,
-} from "./FilterBar";
-
-const FIELD_LABELS: Record<keyof FiltersInterface, string> = {
-  city: "Ciudad",
-  propertyType: "Tipo",
-  zone: "Zona",
-  maxPrice: "Precio máximo",
-  furnished: "Amoblado",
-  pets: "Mascotas",
-};
-
-const FIELD_OPTIONS: Record<
-  keyof FiltersInterface,
-  { label: string; value: string }[]
-> = {
-  city: cityOptions,
-  propertyType: propertyTypeOptions,
-  zone: zoneOptions,
-  maxPrice: maxPriceOptions,
-  furnished: furnishedOptions,
-  pets: petsOptions,
-};
+} from "../utils/filters";
 
 interface FilterPillsPropsInterface {
   filters: FiltersInterface;
@@ -51,16 +26,16 @@ export default function FilterPills({
       {activeKeys.map((key) => {
         const value = filters[key]!;
         const label =
-          FIELD_OPTIONS[key].find((option) => option.value === value)
+          FILTER_FIELD_OPTIONS[key].find((option) => option.value === value)
             ?.label ?? value;
 
         return (
           <Pill key={key} variant="secondary">
-            {FIELD_LABELS[key]}: {label}
+            {FILTER_FIELD_LABELS[key]}: {label}
             <button
               type="button"
               onClick={() => onFilterChange(key, "")}
-              aria-label={`Quitar filtro ${FIELD_LABELS[key]}`}
+              aria-label={`Quitar filtro ${FILTER_FIELD_LABELS[key]}`}
               className="cursor-pointer"
             >
               <X className="w-3 h-3" />
