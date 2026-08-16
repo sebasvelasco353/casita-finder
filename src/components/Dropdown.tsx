@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 
 interface DropdownOptionInterface {
   label: string;
@@ -22,7 +23,9 @@ export default function Dropdown({
 }: DropdownPropsInterface) {
   const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const isControlled = value !== undefined;
   const selectedValue = isControlled ? value : internalValue;
@@ -33,13 +36,49 @@ export default function Dropdown({
     if (!isOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+
+    function updatePosition() {
+      const trigger = containerRef.current;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      const margin = 8;
+      const menuWidth = menuRef.current?.offsetWidth ?? rect.width;
+      let left = rect.left;
+      if (left + menuWidth > window.innerWidth - margin) {
+        left = Math.max(margin, window.innerWidth - menuWidth - margin);
+      }
+      setMenuStyle({
+        position: "fixed",
+        top: rect.bottom + margin,
+        left,
+        minWidth: rect.width,
+      });
+    }
+
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
   }, [isOpen]);
 
   function handleSelect(option: DropdownOptionInterface) {
@@ -72,28 +111,32 @@ export default function Dropdown({
         </svg>
       </button>
 
-      {isOpen && (
-        <ul
-          role="listbox"
-          className="absolute left-0 top-full mt-2 min-w-full w-max py-2 rounded-2xl border border-gray-91 bg-gray-99 shadow-lg z-10"
-        >
-          {options.map((option) => (
-            <li key={option.value}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={option.value === selectedValue}
-                onClick={() => handleSelect(option)}
-                className={`w-full text-left px-4 py-2 text-sm cursor-pointer hover:bg-gray-93 ${
-                  option.value === selectedValue ? "text-orange-47 font-semibold" : "text-orange-18"
-                }`}
-              >
-                {option.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {isOpen &&
+        createPortal(
+          <ul
+            ref={menuRef}
+            role="listbox"
+            style={menuStyle}
+            className="w-max py-2 rounded-2xl border border-gray-91 bg-gray-99 shadow-lg z-50"
+          >
+            {options.map((option) => (
+              <li key={option.value}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={option.value === selectedValue}
+                  onClick={() => handleSelect(option)}
+                  className={`w-full text-left px-4 py-2 text-sm cursor-pointer hover:bg-gray-93 ${
+                    option.value === selectedValue ? "text-orange-47 font-semibold" : "text-orange-18"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body
+        )}
     </div>
   );
 }

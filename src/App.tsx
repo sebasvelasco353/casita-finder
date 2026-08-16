@@ -10,6 +10,7 @@ import PropertyCard, {
 import { filterProperties } from "./utils/filter";
 import casitaIcon from "./assets/casita_icon.svg";
 import searchIcon from "./assets/search_icon.svg";
+import Footer from "./components/Footer";
 
 // Mock data
 const properties: PropertyDataInterface[] = [
@@ -231,26 +232,27 @@ function App() {
       {/* available casitas */}
       <section>
         <Container className="items-start">
-          <div className="flex py-9 w-full justify-between">
+          <div className="flex flex-col md:flex-row py-9 w-full justify-between">
             <div className="flex flex-row gap-2.5 items-center">
               <h2 className="font-bold text-3xl text-orange-18">
                 Casitas disponibles
               </h2>
               <Pill variant="tertiary">{filteredProperties.length} avisos</Pill>
             </div>
-            <Button handleClick={() => console.log("click")}>
+            <Button className="max-w-52 mt-2.5 md:mt-0" handleClick={() => console.log("click")}>
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
             </Button>
           </div>
           <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-          <div className="grid grid-cols-4 gap-4 py-9">
+          <div className="grid md:grid-cols-4 gap-4 py-9">
             {filteredProperties.map((property) => (
               <PropertyCard key={property.id} propertyData={property} />
             ))}
           </div>
         </Container>
       </section>
+      <Footer />
     </div>
   );
 }

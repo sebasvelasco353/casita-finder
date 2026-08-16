@@ -60,7 +60,7 @@ interface FilterBarPropsInterface {
 
 export default function FilterBar({ filters, onFilterChange }: FilterBarPropsInterface) {
   return (
-    <div className="flex flex-wrap gap-2.5">
+    <div className="flex w-full gap-2.5 box-border overflow-x-auto [&>*]:shrink-0">
       <Dropdown
         placeholder="Ciudad"
         options={cityOptions}

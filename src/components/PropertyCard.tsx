@@ -66,8 +66,8 @@ export default function PropertyCard({ propertyData }: PropertyCardPropsInterfac
   const whatsappHref = `https://wa.me/${whatsappNumber}`;
 
   return (
-    <article className="w-59 h-106 bg-gray-99 border border-gray-91 rounded-3xl p-3 flex flex-col">
-      <div className="relative h-35 shrink-0 rounded-2xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50">
+    <article className="w-full h-126 md:h-137 bg-gray-99 border border-gray-91 rounded-3xl p-3 flex flex-col">
+      <div className="relative h-60 md:h-56 shrink-0 rounded-2xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50">
         {imageUrl ? (
           <img src={imageUrl} alt="" className="w-full h-full object-cover" />
         ) : (
