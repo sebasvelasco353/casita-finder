@@ -1,8 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import Modal from "./Modal";
 import TextField from "../TextField";
 import ToggleGroup from "../ToggleGroup";
 import Dropdown from "../Dropdown";
+import Checkbox from "../Checkbox";
+import StepHeader from "../StepHeader";
 import Button from "../Button";
 
 interface PublishPropertyFormDataInterface {
@@ -81,43 +83,6 @@ const propertyTypeOptions = [
 interface PublishPropertyModalPropsInterface {
   isOpen: boolean;
   onClose: () => void;
-}
-
-function StepHeader({ step, title }: { step: number; title: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-bold uppercase tracking-wide text-orange-47">
-        Paso {step}
-      </span>
-      <h3 className="text-lg font-bold text-orange-18">{title}</h3>
-    </div>
-  );
-}
-
-function Checkbox({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <label className="flex items-center gap-2 text-sm text-orange-18">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-        className="h-4 w-4 accent-orange-47"
-      />
-      {label}
-    </label>
-  );
-}
-
-function Divider(): ReactNode {
-  return <hr className="border-gray-91 my-6" />;
 }
 
 export default function PublishPropertyModal({ isOpen, onClose }: PublishPropertyModalPropsInterface) {
@@ -233,7 +198,7 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
           </div>
         </div>
 
-        <Divider />
+        <hr className="border-gray-91 my-6" />
 
         <StepHeader step={2} title="Localización" />
         <TextField
@@ -258,7 +223,7 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
           onChange={(value) => updateField("neighborhood", value)}
         />
 
-        <Divider />
+        <hr className="border-gray-91 my-6" />
 
         <StepHeader step={3} title="Inmueble" />
         <div className="flex flex-col gap-1.5">

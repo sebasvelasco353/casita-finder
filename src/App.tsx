@@ -12,6 +12,7 @@ import casitaIcon from "./assets/casita_icon.svg";
 import searchIcon from "./assets/search_icon.svg";
 import Footer from "./components/Footer";
 import PublishPropertyModal from "./components/modals/PublishPropertyModal";
+import WantToRentModal from "./components/modals/WantToRentModal";
 
 // Mock data
 const properties: PropertyDataInterface[] = [
@@ -196,6 +197,7 @@ const properties: PropertyDataInterface[] = [
 function App() {
   const [filters, setFilters] = useState<FiltersInterface>({});
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isWantToRentModalOpen, setIsWantToRentModalOpen] = useState(false);
 
   function handleFilterChange(key: keyof FiltersInterface, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -223,7 +225,7 @@ function App() {
             </Button>
             <Button
               variant="secondary"
-              handleClick={() => console.log("click")}
+              handleClick={() => setIsWantToRentModalOpen(true)}
             >
               <img src={searchIcon} alt="" className="w-4 h-4" />
               Quiero una casita
@@ -258,6 +260,10 @@ function App() {
       <PublishPropertyModal
         isOpen={isPublishModalOpen}
         onClose={() => setIsPublishModalOpen(false)}
+      />
+      <WantToRentModal
+        isOpen={isWantToRentModalOpen}
+        onClose={() => setIsWantToRentModalOpen(false)}
       />
     </div>
   );
