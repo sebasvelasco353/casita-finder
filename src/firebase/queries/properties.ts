@@ -20,7 +20,7 @@ import type { Filters, Property } from "../../types";
 import type { FiltersInterface } from "../../utils/filters";
 import type { PublishPropertyFormDataInterface } from "../../components/modals/PublishPropertyModal";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 12;
 
 // FilterBar's dropdowns only speak strings ("si"/"no"/""); this is the one
 // place that turns that UI shape into the typed shape Firestore needs.
@@ -87,9 +87,7 @@ function toContactNumber(formData: PublishPropertyFormDataInterface) {
   );
 }
 
-function toPropertyDoc(
-  formData: PublishPropertyFormDataInterface,
-) {
+function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
   return {
     available: true,
     propertyType: formData.propertyType as Property["propertyType"],
@@ -110,7 +108,9 @@ function toPropertyDoc(
   };
 }
 
-export async function createProperty(formData: PublishPropertyFormDataInterface) {
+export async function createProperty(
+  formData: PublishPropertyFormDataInterface,
+) {
   const user = auth.currentUser;
   if (!user) throw new Error("Debes iniciar sesión");
 

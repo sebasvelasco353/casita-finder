@@ -3,23 +3,25 @@ import type { Timestamp } from "firebase/firestore";
 export type Property = {
   id: string;
   cover?: string | null;
+  photos: string[];
   available: boolean;
   propertyType: "apartamento" | "casa" | "habitacion" | "bodega";
   city: string;
   zone: string;
   neighborhood: string;
-  floor: number;
-  bedrooms: number;
+  buildingName?: string | null;
+  apartmentNumber?: string | null;
+  floor?: number | null;
+  bedrooms?: number | null;
   furnished: boolean;
   petsAllowed: boolean;
-  parkingType?: "publico" | "privado" | "sin_parqueadero";
+  parkingType?: "publico" | "privado" | "sin_parqueadero"; // Nuevo, agregarlo a la db
   price: number;
   ownerId: string;
-  contact_number?: string;
-  address?: string;
+  address?: string | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  description?: string;
+  description?: string | null;
 };
 
 export type Filters = {
