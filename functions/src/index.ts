@@ -1,12 +1,12 @@
-import { setGlobalOptions } from "firebase-functions";
-import { onObjectFinalized } from "firebase-functions/v2/storage";
-import { initializeApp } from "firebase-admin/app";
-import { getStorage } from "firebase-admin/storage";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import {setGlobalOptions} from "firebase-functions";
+import {onObjectFinalized} from "firebase-functions/v2/storage";
+import {initializeApp} from "firebase-admin/app";
+import {getStorage} from "firebase-admin/storage";
+import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import sharp from "sharp";
 
 initializeApp();
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 const MAX_DIMENSION = 1500;
 const QUALITY = 70;
@@ -29,7 +29,7 @@ export const processCasaImage = onObjectFinalized(async (event) => {
       fit: "inside",
       withoutEnlargement: true,
     })
-    .webp({ quality: QUALITY })
+    .webp({quality: QUALITY})
     .toBuffer();
 
   const baseName = fileName.replace(/\.[^./]+$/, "");
@@ -41,12 +41,14 @@ export const processCasaImage = onObjectFinalized(async (event) => {
   const storageHost =
     process.env.STORAGE_EMULATOR_HOST ??
     "https://firebasestorage.googleapis.com";
-  const publicUrl = `${storageHost}/v0/b/${event.data.bucket}/o/${encodeURIComponent(outputPath)}?alt=media`;
+  const encodedPath = encodeURIComponent(outputPath);
+  const publicUrl =
+    `${storageHost}/v0/b/${event.data.bucket}/o/${encodedPath}?alt=media`;
 
   await getFirestore()
     .collection("casas")
     .doc(casaId)
-    .update({ images: FieldValue.arrayUnion(publicUrl) });
+    .update({images: FieldValue.arrayUnion(publicUrl)});
 
   await originalFile.delete();
 });
