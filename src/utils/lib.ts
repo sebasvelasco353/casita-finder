@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { intlFormatDistance, differenceInDays } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import type { Property } from "../types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,6 +15,13 @@ export function formatPrice(price: number): string {
     maximumFractionDigits: 0,
     currencyDisplay: "symbol",
   }).format(price);
+}
+
+export function formatParking(parking: Property["parking"]): string | null {
+  if (!parking || parking.type === "sin_parqueadero") return null;
+  const typeLabel = parking.type === "publico" ? "público" : "privado";
+  if (!parking.spots) return `Parqueadero ${typeLabel}`;
+  return `${parking.spots} parqueadero${parking.spots > 1 ? "s" : ""} (${typeLabel})`;
 }
 
 export function formatDistance(date: Date | string): string {

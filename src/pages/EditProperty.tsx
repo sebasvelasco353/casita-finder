@@ -65,10 +65,16 @@ function toFormData(property: Property): EditPropertyFormDataInterface {
     neighborhood: property.neighborhood,
     floor: String(property.floor ?? ""),
     price: String(property.price ?? ""),
-    bedrooms: property.bedrooms >= 4 ? "4+" : (String(property.bedrooms) as EditPropertyFormDataInterface["bedrooms"]),
+    bedrooms:
+      property.bedrooms >= 4
+        ? "4+"
+        : (String(
+            property.bedrooms,
+          ) as EditPropertyFormDataInterface["bedrooms"]),
     furnished: property.furnished,
     petsAllowed: property.petsAllowed,
-    parkingType: property.parkingType ?? "sin_parqueadero",
+    parkingType: property.parking?.type ?? "sin_parqueadero",
+    parkingSpots: String(property.parking?.spots ?? ""),
     description: property.description ?? "",
   };
 }
@@ -95,7 +101,10 @@ export default function EditProperty() {
   return (
     <Layout>
       <Container className="items-start py-8">
-        <a href="/" className="flex items-center gap-1 text-sm text-orange-42 mb-4">
+        <a
+          href="/"
+          className="flex items-center gap-1 text-sm text-orange-42 mb-4"
+        >
           <ChevronLeft className="w-4 h-4" />
           Volver a casitas
         </a>
@@ -108,7 +117,8 @@ export default function EditProperty() {
               </EmptyMedia>
               <EmptyTitle>Cargando</EmptyTitle>
               <EmptyDescription>
-                Espera unos segundos mientras cargamos los detalles de esta casita.
+                Espera unos segundos mientras cargamos los detalles de esta
+                casita.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -122,7 +132,8 @@ export default function EditProperty() {
               </EmptyMedia>
               <EmptyTitle>No encontramos esta casita</EmptyTitle>
               <EmptyDescription>
-                Es posible que ya no esté disponible o que el enlace sea incorrecto.
+                Es posible que ya no esté disponible o que el enlace sea
+                incorrecto.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -175,8 +186,12 @@ function EditPropertyForm({ property }: { property: Property }) {
     setIsSaving(true);
     try {
       await updateProperty(property.id, formData);
-      await queryClient.invalidateQueries({ queryKey: ["property", property.id] });
-      await queryClient.invalidateQueries({ queryKey: ["properties", "owner", user?.uid] });
+      await queryClient.invalidateQueries({
+        queryKey: ["property", property.id],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["properties", "owner", user?.uid],
+      });
       navigate(`/property/${property.id}/view`);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Algo salió mal");
@@ -186,7 +201,10 @@ function EditPropertyForm({ property }: { property: Property }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-lg flex flex-col gap-4"
+    >
       <h1 className="font-bold text-orange-18 text-2xl">Editar casita</h1>
 
       <div className="flex flex-col gap-1.5">
@@ -219,7 +237,9 @@ function EditPropertyForm({ property }: { property: Property }) {
       />
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-orange-18">Tipo de lugar</span>
+        <span className="text-sm font-medium text-orange-18">
+          Tipo de lugar
+        </span>
         <Dropdown
           variant="field"
           options={propertyTypeOptions}
@@ -243,7 +263,10 @@ function EditPropertyForm({ property }: { property: Property }) {
           options={bedroomOptions}
           value={formData.bedrooms}
           onChange={(value) =>
-            updateField("bedrooms", value as EditPropertyFormDataInterface["bedrooms"])
+            updateField(
+              "bedrooms",
+              value as EditPropertyFormDataInterface["bedrooms"],
+            )
           }
         />
       </div>
@@ -271,10 +294,20 @@ function EditPropertyForm({ property }: { property: Property }) {
           options={parkingOptions}
           value={formData.parkingType}
           onChange={(value) =>
-            updateField("parkingType", value as EditPropertyFormDataInterface["parkingType"])
+            updateField(
+              "parkingType",
+              value as EditPropertyFormDataInterface["parkingType"],
+            )
           }
         />
       </div>
+      {formData.parkingType !== "sin_parqueadero" && (
+        <TextField
+          label="Cantidad de parqueaderos"
+          value={formData.parkingSpots}
+          onChange={(value) => updateField("parkingSpots", value)}
+        />
+      )}
       <TextField
         label="Descripción (opcional)"
         as="textarea"
@@ -285,7 +318,12 @@ function EditPropertyForm({ property }: { property: Property }) {
       {saveError && <p className="text-sm text-red-600">{saveError}</p>}
 
       <div className="flex flex-col gap-3 mt-2">
-        <Button type="submit" className="w-full" disabled={isSaving} handleClick={() => {}}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSaving}
+          handleClick={() => {}}
+        >
           {isSaving ? "Guardando..." : "Guardar cambios"}
         </Button>
         <Button

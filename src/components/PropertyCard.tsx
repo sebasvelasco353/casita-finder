@@ -3,12 +3,13 @@ import Pill from "./Pill";
 import type { Property } from "../types";
 import {
   ArmchairIcon,
+  CarIcon,
   HouseIcon,
   MapPin,
   MessageCircleIcon,
   PawPrintIcon,
 } from "lucide-react";
-import { formatDistance, formatPrice } from "../utils/lib";
+import { formatDistance, formatParking, formatPrice } from "../utils/lib";
 import { cityLabelByValue } from "../utils/filters";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "../firebase/queries/users";
@@ -41,9 +42,11 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
     description,
     updatedAt,
     ownerId,
+    parking,
   } = data;
 
   const cover = photos[0] ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`) : null;
+  const parkingLabel = formatParking(parking);
 
   const { data: owner } = useQuery({
     queryKey: ["user", ownerId],
@@ -90,6 +93,12 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
             <Pill variant="tertiary">
               <PawPrintIcon className="w-3 h-3" />
               Mascotas
+            </Pill>
+          )}
+          {parkingLabel && (
+            <Pill variant="tertiary">
+              <CarIcon className="w-3 h-3" />
+              {parkingLabel}
             </Pill>
           )}
         </div>

@@ -102,6 +102,14 @@ export async function getPropertiesCount(ui: FiltersInterface = {}) {
   return snap.data().count;
 }
 
+function toParking(
+  type: "publico" | "privado" | "sin_parqueadero",
+  spots: string,
+): Property["parking"] {
+  if (type === "sin_parqueadero") return { type, spots: null };
+  return { type, spots: Number(spots) || null };
+}
+
 function toContactNumber(formData: PublishPropertyFormDataInterface) {
   return `${formData.countryCode}${formData.phoneNumber}`.replace(
     /[^\d+]/g,
@@ -121,7 +129,7 @@ function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
     bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
     furnished: formData.furnished,
     petsAllowed: formData.petsAllowed,
-    parkingType: formData.parkingType,
+    parking: toParking(formData.parkingType, formData.parkingSpots),
     description: formData.description || "",
     contact_number: toContactNumber(formData),
     photos: [],
@@ -177,6 +185,7 @@ export interface EditPropertyFormDataInterface {
   furnished: boolean;
   petsAllowed: boolean;
   parkingType: "publico" | "privado" | "sin_parqueadero";
+  parkingSpots: string;
   description: string;
 }
 
@@ -198,7 +207,7 @@ export async function updateProperty(
     bedrooms: formData.bedrooms === "4+" ? 4 : Number(formData.bedrooms),
     furnished: formData.furnished,
     petsAllowed: formData.petsAllowed,
-    parkingType: formData.parkingType,
+    parking: toParking(formData.parkingType, formData.parkingSpots),
     description: formData.description || "",
     updatedAt: serverTimestamp(),
   });

@@ -1,7 +1,9 @@
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   ArmchairIcon,
+  CarIcon,
   ChevronLeft,
   HouseIcon,
   LoaderIcon,
@@ -13,6 +15,7 @@ import {
 import Layout from "../components/Layout";
 import Container from "../components/Container";
 import Pill from "../components/Pill";
+import Lightbox from "../components/Lightbox";
 import {
   Empty,
   EmptyDescription,
@@ -21,7 +24,7 @@ import {
   EmptyTitle,
 } from "../components/empty";
 import { getPropertyById } from "../firebase/queries/properties";
-import { formatPrice } from "../utils/lib";
+import { formatDistance, formatParking, formatPrice } from "../utils/lib";
 import {
   cityLabelByValue,
   propertyTypeLabelByValue,
@@ -29,6 +32,7 @@ import {
 } from "../utils/filters";
 import type { Property } from "../types";
 import { getStorageImageUrl } from "../firebase/queries/storage";
+import { getUserById } from "../firebase/queries/users";
 
 const propertyTypeLabels: Record<Property["propertyType"], string> = {
   apartamento: "Apto.",
@@ -111,21 +115,41 @@ function PropertyDetail({ property }: { property: Property }) {
     petsAllowed,
     price,
     available,
-    createdAt,
-    contact_number,
+    updatedAt,
+    ownerId,
+    parking,
   } = property;
 
-  const cover = photos[0] ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`) : null;
+  const cover = photos[0]
+    ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`)
+    : null;
+
+  const photoUrls = photos.map((photo) =>
+    getStorageImageUrl(`casas/${id}/images/${photo}`)
+  );
+
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const parkingLabel = formatParking(parking);
+
+  const { data: owner } = useQuery({
+    queryKey: ["user", ownerId],
+    queryFn: () => getUserById(ownerId),
+    enabled: !!ownerId,
+  });
 
   const title = `${propertyTypeLabelByValue[propertyType] ?? propertyType} en ${zoneLabelByValue[zone] ?? zone}`;
 
-  const whatsappHref = `https://wa.me/${contact_number}?text=Hola%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
+  const whatsappHref = `https://wa.me/${owner?.phoneNumber}?text=Hola%20${owner?.displayName}%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
 
   return (
     <div className="w-full">
       <h1 className="font-bold text-orange-18 text-3xl mb-4">{title}</h1>
 
-      <div className="w-full aspect-video md:aspect-21/9 rounded-3xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50">
+      <div
+        className={`w-full aspect-video md:aspect-21/9 rounded-3xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50 ${cover ? "cursor-pointer" : ""}`}
+        onClick={cover ? () => setLightboxIndex(0) : undefined}
+      >
         {cover ? (
           <img src={cover} alt="" className="w-full h-full object-cover" />
         ) : (
@@ -134,14 +158,24 @@ function PropertyDetail({ property }: { property: Property }) {
       </div>
 
       <div className="grid grid-cols-4 gap-3 mt-3">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={index}
-            className="aspect-square rounded-2xl bg-gray-91 flex items-center justify-center text-orange-42/50"
-          >
-            <HouseIcon className="w-6 h-6" />
-          </div>
-        ))}
+        {Array.from({ length: 4 }).map((_, gridIndex) => {
+          const photoIndex = gridIndex + 1;
+          const photoUrl = photoUrls[photoIndex];
+
+          return (
+            <div
+              key={gridIndex}
+              className={`aspect-square rounded-2xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50 ${photoUrl ? "cursor-pointer" : ""}`}
+              onClick={photoUrl ? () => setLightboxIndex(photoIndex) : undefined}
+            >
+              {photoUrl ? (
+                <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <HouseIcon className="w-6 h-6" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="flex flex-wrap gap-2 mt-4">
@@ -162,6 +196,12 @@ function PropertyDetail({ property }: { property: Property }) {
           <Pill variant="tertiary">
             <PawPrintIcon className="w-3 h-3" />
             Mascotas
+          </Pill>
+        )}
+        {parkingLabel && (
+          <Pill variant="tertiary">
+            <CarIcon className="w-3 h-3" />
+            {parkingLabel}
           </Pill>
         )}
         <span
@@ -197,17 +237,21 @@ function PropertyDetail({ property }: { property: Property }) {
       </a>
 
       <p className="mt-4 text-xs text-orange-42/70">
-        Publicado el{" "}
-        {new Intl.DateTimeFormat("es-CO", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }).format(createdAt.toDate())}
+        Actualizado {formatDistance(updatedAt.toDate())}
       </p>
 
       <hr className="w-full border-orange-86 mt-6" />
 
       {/* TODO: agregar personas que hacen match */}
+
+      {lightboxIndex !== null && (
+        <Lightbox
+          photos={photoUrls}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
+      )}
     </div>
   );
 }

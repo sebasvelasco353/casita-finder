@@ -14,7 +14,10 @@ export type Property = {
   bedrooms?: number | null;
   furnished: boolean;
   petsAllowed: boolean;
-  parkingType?: "publico" | "privado" | "sin_parqueadero"; // Nuevo, agregarlo a la db
+  parking?: {
+    type: "publico" | "privado" | "sin_parqueadero";
+    spots: number | null;
+  } | null;
   price: number;
   ownerId: string;
   address?: string | null;

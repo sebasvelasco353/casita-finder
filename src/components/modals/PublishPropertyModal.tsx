@@ -23,6 +23,7 @@ export interface PublishPropertyFormDataInterface {
   petsAllowed: boolean;
   furnished: boolean;
   parkingType: "publico" | "privado" | "sin_parqueadero";
+  parkingSpots: string;
   description: string;
 }
 
@@ -43,6 +44,7 @@ const initialFormData: PublishPropertyFormDataInterface = {
   petsAllowed: false,
   furnished: false,
   parkingType: "sin_parqueadero",
+  parkingSpots: "",
   description: "",
 };
 
@@ -326,6 +328,13 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
             onChange={(value) => updateField("parkingType", value as PublishPropertyFormDataInterface["parkingType"])}
           />
         </div>
+        {formData.parkingType !== "sin_parqueadero" && (
+          <TextField
+            label="Cantidad de parqueaderos"
+            value={formData.parkingSpots}
+            onChange={(value) => updateField("parkingSpots", value)}
+          />
+        )}
         <TextField
           label="Descripción (opcional)"
           as="textarea"
