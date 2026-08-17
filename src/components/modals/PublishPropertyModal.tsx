@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Modal from "./Modal";
 import TextField from "../TextField";
 import ToggleGroup from "../ToggleGroup";
@@ -123,6 +124,7 @@ function Divider(): ReactNode {
 }
 
 export default function PublishPropertyModal({ isOpen, onClose }: PublishPropertyModalPropsInterface) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<PublishPropertyFormDataInterface>(initialFormData);
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [isPublishing, setIsPublishing] = useState(false);
@@ -150,6 +152,11 @@ export default function PublishPropertyModal({ isOpen, onClose }: PublishPropert
     setIsPublishing(true);
     try {
       await createProperty(formData);
+      await queryClient.invalidateQueries({ queryKey: ["properties"] });
+      await queryClient.invalidateQueries({ queryKey: ["properties-count"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["properties-new-count"],
+      });
       setFormData(initialFormData);
       setStep("form");
       onClose();

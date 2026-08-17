@@ -164,7 +164,6 @@ export default function EditProperty() {
 function EditPropertyForm({ property }: { property: Property }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   const [formData, setFormData] = useState<EditPropertyFormDataInterface>(() =>
     toFormData(property),
@@ -189,8 +188,12 @@ function EditPropertyForm({ property }: { property: Property }) {
       await queryClient.invalidateQueries({
         queryKey: ["property", property.id],
       });
+      // "properties" sin filtros invalida también ["properties", filters]
+      // (Home, cualquier combinación) y ["properties", "owner", uid] a la vez.
+      await queryClient.invalidateQueries({ queryKey: ["properties"] });
+      await queryClient.invalidateQueries({ queryKey: ["properties-count"] });
       await queryClient.invalidateQueries({
-        queryKey: ["properties", "owner", user?.uid],
+        queryKey: ["properties-new-count"],
       });
       navigate(`/property/${property.id}/view`);
     } catch (err) {

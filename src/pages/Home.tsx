@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { Timestamp } from "firebase/firestore";
 import Button from "../components/Button";
 import Container from "../components/Container";
 import FilterBar from "../components/FilterBar";
@@ -10,8 +11,9 @@ import casitaIcon from "../assets/casita_icon.svg";
 import searchIcon from "../assets/search_icon.svg";
 import PublishPropertyModal from "../components/modals/PublishPropertyModal";
 import Layout from "../components/Layout";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  getNewPropertiesCount,
   getPaginatedProperties,
   getPropertiesCount,
 } from "../firebase/queries/properties";
@@ -60,6 +62,34 @@ function Home() {
     queryFn: () => getPropertiesCount(filters),
   });
 
+  const queryClient = useQueryClient();
+  const latestSeenRef = useRef<Timestamp | null>(null);
+
+  useEffect(() => {
+    const items = data?.pages.flatMap((page) => page.items) ?? [];
+    if (!items.length) return;
+    latestSeenRef.current = items.reduce(
+      (max, item) => (item.updatedAt && item.updatedAt > max ? item.updatedAt : max),
+      items[0].updatedAt,
+    );
+  }, [data]);
+
+  const { data: newCount } = useQuery({
+    queryKey: ["properties-new-count", filters],
+    queryFn: () =>
+      latestSeenRef.current
+        ? getNewPropertiesCount(filters, latestSeenRef.current)
+        : Promise.resolve(0),
+    refetchInterval: 1000 * 60 * 10,
+    refetchOnMount: false,
+  });
+
+  async function handleRefresh() {
+    queryClient.setQueryData(["properties-new-count", filters], 0);
+    await queryClient.invalidateQueries({ queryKey: ["properties", filters] });
+    await queryClient.invalidateQueries({ queryKey: ["properties-count", filters] });
+  }
+
   return (
     <Layout>
       <section className="bg-gray-91 py-10">
@@ -107,6 +137,19 @@ function Home() {
           </div>
           <FilterBar filters={filters} onFilterChange={handleFilterChange} />
           <FilterPills filters={filters} onFilterChange={handleFilterChange} />
+
+          {!!newCount && (
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-orange-86 bg-orange-98 px-4 py-3 w-full mt-4">
+              <p className="text-sm text-orange-18">
+                {newCount === 1
+                  ? "Hay 1 propiedad nueva disponible."
+                  : `Hay ${newCount} propiedades nuevas disponibles.`}
+              </p>
+              <Button variant="secondary" handleClick={handleRefresh}>
+                Actualizar
+              </Button>
+            </div>
+          )}
 
           {isLoading && <LoadingProperties />}
           {isError && <ErrorProperties />}

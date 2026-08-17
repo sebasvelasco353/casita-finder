@@ -1,7 +1,20 @@
 import { clsx, type ClassValue } from "clsx";
 import { intlFormatDistance, differenceInDays } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import type { Timestamp } from "firebase/firestore";
 import type { Property } from "../types";
+
+// React Query's persisted cache round-trips Timestamps through JSON, which
+// can leave them as plain {seconds, nanoseconds} instead of real Timestamp
+// instances — accept either shape so callers never crash on .toDate().
+export function toDate(timestamp: Timestamp): Date {
+  if (typeof timestamp.toDate === "function") return timestamp.toDate();
+  const { seconds, nanoseconds } = timestamp as unknown as {
+    seconds: number;
+    nanoseconds: number;
+  };
+  return new Date(seconds * 1000 + nanoseconds / 1e6);
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

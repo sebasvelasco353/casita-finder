@@ -9,7 +9,7 @@ import {
   MessageCircleIcon,
   PawPrintIcon,
 } from "lucide-react";
-import { formatDistance, formatParking, formatPrice } from "../utils/lib";
+import { formatDistance, formatParking, formatPrice, toDate } from "../utils/lib";
 import { cityLabelByValue } from "../utils/filters";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "../firebase/queries/users";
@@ -68,7 +68,7 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
           <HouseIcon className="w-8 h-8" />
         )}
         <span className="absolute top-3 left-3 py-0.5 px-1.5 rounded-full text-xs font-medium bg-gray-93 text-orange-18 capitalize">
-          {formatDistance(updatedAt.toDate())}
+          {formatDistance(toDate(updatedAt))}
         </span>
       </Link>
 

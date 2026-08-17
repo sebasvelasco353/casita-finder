@@ -24,7 +24,7 @@ import {
   EmptyTitle,
 } from "../components/empty";
 import { getPropertyById } from "../firebase/queries/properties";
-import { formatDistance, formatParking, formatPrice } from "../utils/lib";
+import { formatDistance, formatParking, formatPrice, toDate } from "../utils/lib";
 import {
   cityLabelByValue,
   propertyTypeLabelByValue,
@@ -237,7 +237,7 @@ function PropertyDetail({ property }: { property: Property }) {
       </a>
 
       <p className="mt-4 text-xs text-orange-42/70">
-        Actualizado {formatDistance(updatedAt.toDate())}
+        Actualizado {formatDistance(toDate(updatedAt))}
       </p>
 
       <hr className="w-full border-orange-86 mt-6" />

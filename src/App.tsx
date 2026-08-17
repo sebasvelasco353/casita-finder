@@ -3,14 +3,17 @@ import { AuthProvider } from "./firebase/auth";
 import Home from "./pages/Home";
 import CasitaView from "./pages/CasitaView";
 import EditProperty from "./pages/EditProperty";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./providers/query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { queryClient, persister } from "./providers/query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   return (
     <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister }}
+      >
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -19,7 +22,7 @@ function App() {
           </Routes>
           <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </BrowserRouter>
   );
 }

@@ -15,11 +15,13 @@ import {
   type DocumentData,
   type QueryConstraint,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { auth, db } from "../config";
 import type { Filters, Property } from "../../types";
 import type { FiltersInterface } from "../../utils/filters";
 import type { PublishPropertyFormDataInterface } from "../../components/modals/PublishPropertyModal";
+import { toDate } from "../../utils/lib";
 
 const PAGE_SIZE = 12;
 
@@ -102,6 +104,26 @@ export async function getPropertiesCount(ui: FiltersInterface = {}) {
   return snap.data().count;
 }
 
+export async function getNewPropertiesCount(
+  ui: FiltersInterface = {},
+  since: Timestamp,
+) {
+  const filters = toQueryFilters(ui);
+
+  // Firestore only allows one inequality field per query; a maxPrice filter
+  // already uses one on `price`, so skip the check rather than break it.
+  if (filters.maxPrice && filters.maxPrice !== "gratis") return 0;
+
+  const constraints = buildFilterConstraints(filters);
+  constraints.push(where("updatedAt", ">", since));
+
+  const snap = await getCountFromServer(
+    query(collection(db, "properties"), ...constraints),
+  );
+
+  return snap.data().count;
+}
+
 function toParking(
   type: "publico" | "privado" | "sin_parqueadero",
   spots: string,
@@ -167,9 +189,8 @@ export async function getPropertiesByOwner(ownerId: string) {
 
   // sorted client-side to avoid needing a composite index (ownerId + updatedAt)
   const items = snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Property);
-  items.sort(
-    (a, b) => (b.updatedAt?.toMillis() ?? 0) - (a.updatedAt?.toMillis() ?? 0),
-  );
+  const millis = (p: Property) => (p.updatedAt ? toDate(p.updatedAt).getTime() : 0);
+  items.sort((a, b) => millis(b) - millis(a));
   return items;
 }
 
