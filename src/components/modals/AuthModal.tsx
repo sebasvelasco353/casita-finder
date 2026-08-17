@@ -92,7 +92,7 @@ function MyProperties({
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-91 text-orange-42/70 overflow-hidden">
                   {property.photos[0] ? (
                     <img
-                      src={getStorageImageUrl(`casas/${property.photos[0]}`)}
+                      src={getStorageImageUrl(`casas/${property.id}/images/${property.photos[0]}`)}
                       alt=""
                       className="h-full w-full object-cover"
                     />

@@ -99,6 +99,7 @@ export default function CasitaView() {
 
 function PropertyDetail({ property }: { property: Property }) {
   const {
+    id,
     photos,
     propertyType,
     city,
@@ -114,7 +115,7 @@ function PropertyDetail({ property }: { property: Property }) {
     contact_number,
   } = property;
 
-  const cover = photos[0] ? getStorageImageUrl(`casas/${photos[0]}`) : null;
+  const cover = photos[0] ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`) : null;
 
   const title = `${propertyTypeLabelByValue[propertyType] ?? propertyType} en ${zoneLabelByValue[zone] ?? zone}`;
 

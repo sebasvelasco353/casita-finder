@@ -43,7 +43,7 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
     ownerId,
   } = data;
 
-  const cover = photos[0] ? getStorageImageUrl(`casas/${photos[0]}`) : null;
+  const cover = photos[0] ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`) : null;
 
   const { data: owner } = useQuery({
     queryKey: ["user", ownerId],

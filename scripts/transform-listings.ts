@@ -86,7 +86,6 @@ const raw: RawListing[] = JSON.parse(readFileSync(INPUT, "utf-8"));
 
 const properties = raw.map((row) => ({
   id: row.id,
-  cover: row.photos[0] ?? null,
   photos: row.photos,
   available: true,
   propertyType: toPropertyType(row.property_type),
