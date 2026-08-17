@@ -1,0 +1,514 @@
+[
+  {
+    "id": "d242d505-f6a1-40ae-a36b-2e781ada8ac1",
+    "owner": {
+      "name": "José diaz",
+      "phone": "3174249114"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Kilómetro 13 via a dapa",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 0,
+    "propertyType": "casa",
+    "description": "La casa está ubicada en Yumbo, está a 20 minutos de la ciudad de cali, tiene entrada para vehículo , número de contacto 317-4249114",
+    "createdAt": "2026-08-12T16:30:13.834Z"
+  },
+  {
+    "id": "7f9f34e5-336a-46b2-bd47-be83d489e1c8",
+    "owner": {
+      "name": "Stephania",
+      "phone": "+523150560469"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Sin dirección",
+    "buildingName": null,
+    "apartmentNumber": "Apto303",
+    "price": 1500000,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-13T16:41:01.325Z"
+  },
+  {
+    "id": "7072e0be-b09a-44b0-a9e8-1347f79e5903",
+    "owner": {
+      "name": "Diana Marcela",
+      "phone": "3013173155"
+    },
+    "city": "cali",
+    "zone": "oeste",
+    "address": "Carrera 4 #12 oeste -109",
+    "buildingName": "Torres de Altair",
+    "apartmentNumber": "302",
+    "price": 2100000,
+    "propertyType": "apartamento",
+    "description": "Apartamento para estrenar en la vía a Cristo Rey. Tiene:\n- Cocina integral \n- Sala\n- Comedor\n- Zona de oficios independiente \n- 2 habitaciones (la principal con baño y clóset y la segunda con clóset)\n- 2 baños\n- Balcón \n- Piscina\n- Turco\n- Sala de cine\n- Coworking \n- Gimnasio \n- Juegos infantiles \n- Zona BBQ\n- Parqueadero cubierto y al aire libre comunitario\n- Salón social con vista a la ciudad\n- vigilancia 24 horas\nY más",
+    "createdAt": "2026-08-13T03:04:41.570Z"
+  },
+  {
+    "id": "a43b3566-6bf5-4a53-b897-6099ab6f0502",
+    "owner": {
+      "name": "Ana Maria Ríos",
+      "phone": "3017906704"
+    },
+    "city": "cali",
+    "zone": "oeste",
+    "address": "Carrera 24C 1 Bis # 3 Oeste - 19",
+    "buildingName": "Indigo",
+    "apartmentNumber": "301",
+    "price": 1800000,
+    "propertyType": "apartamento",
+    "description": "Parqueadero solo para moto. Servicios por aparte. https://crmred.co/inmuebles/Arriendo%20Apartamento%20Para%20Estrenar%20En%20Miraflores%20-%20Sur%20De%20Cali_42024/FICHA_WEB/168",
+    "createdAt": "2026-08-13T15:06:42.095Z"
+  },
+  {
+    "id": "fa093b31-4289-481d-9264-c4149341ae5a",
+    "owner": {
+      "name": "Graciela Fernández",
+      "phone": "3152771013"
+    },
+    "city": "cali",
+    "zone": "oeste",
+    "address": "Cta.2a 28a",
+    "buildingName": "Leones",
+    "apartmentNumber": "501",
+    "price": 2900000,
+    "propertyType": "apartamento",
+    "description": "Incluye administracion",
+    "createdAt": "2026-08-13T16:53:57.818Z"
+  },
+  {
+    "id": "44cea31a-ec0d-4852-af6d-61b5ebf6b232",
+    "owner": {
+      "name": "Monica molina",
+      "phone": "3168721943"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Calle 106 #44-67",
+    "buildingName": "Rattan bochalema",
+    "apartmentNumber": "502",
+    "price": 1450000,
+    "propertyType": "apartamento",
+    "description": "3 alcobas dos baños y parqueadero rattan bichalema conjunto con piscina.",
+    "createdAt": "2026-08-13T17:29:21.838Z"
+  },
+  {
+    "id": "9de1ec84-f629-4d2b-849e-67ec4cf2a6f5",
+    "owner": {
+      "name": "Monica molina",
+      "phone": "3168721943"
+    },
+    "city": "cali",
+    "zone": "",
+    "address": "carrera 101 No 48-54 Cali",
+    "buildingName": "Moretti",
+    "apartmentNumber": "511",
+    "price": 2300000,
+    "propertyType": "apartamento",
+    "description": "2 alcibas y estudio.  Baño de alcobas en alcoba principal y baño social. Un garaje.",
+    "createdAt": "2026-08-13T17:36:11.736Z"
+  },
+  {
+    "id": "007df314-174e-4160-9864-b3557c132433",
+    "owner": {
+      "name": "Alejandra C",
+      "phone": "3223065859"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cra. 90 #54C - 65, Cali, Valle del Cauca",
+    "buildingName": "Belaterra Ventus",
+    "apartmentNumber": "209",
+    "price": 600000,
+    "propertyType": "apartamento",
+    "description": "El apartamento está en obra gris, tiene 3 habitaciones 1 baño, es habitable, tiene los servicios al día y tiene estufa donde cocinar.",
+    "createdAt": "2026-08-13T17:53:53.452Z"
+  },
+  {
+    "id": "13c3c53c-75f7-4f03-86ea-5be07a80da83",
+    "owner": {
+      "name": "Isabel Montoya",
+      "phone": "3014692888"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Sin dirección",
+    "buildingName": "Unidad Patios en el Lili",
+    "apartmentNumber": "Piso 7",
+    "price": 1500000,
+    "propertyType": "apartamento",
+    "description": "Unidad patios en el Lili \n\nTorre 7 piso 4 - parking\n60mts \n3 habs",
+    "createdAt": "2026-08-13T18:07:34.709Z"
+  },
+  {
+    "id": "65905f72-0eb2-40ee-820b-1a969522bf1d",
+    "owner": {
+      "name": "Avril Rodriguez",
+      "phone": "3105016315"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cl. 49 #112-25, Bochalema",
+    "buildingName": "Wengue",
+    "apartmentNumber": "5",
+    "price": 1400000,
+    "propertyType": "apartamento",
+    "description": "Cuenta con ascensor, apto a estrenar\nInfo: 3105016315",
+    "createdAt": "2026-08-13T18:36:25.400Z"
+  },
+  {
+    "id": "3cb44721-33c0-4b8e-aa83-d5272b0bc981",
+    "owner": {
+      "name": "Jacobo jaramillo",
+      "phone": "3217158962"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Calle 14 # 19-78, Jamundí, Valle del Cauca",
+    "buildingName": "Conjunto residencial carbonero",
+    "apartmentNumber": "301 torre 5",
+    "price": 900,
+    "propertyType": "apartamento",
+    "description": "Cuenta con ascensor, con 2 habitaciones con clóset, sala comedor, balcón amplio, 2 baños, parqueadero, internet, televisión y Admon incluido en el canon, el sector se llama sachamate, a 5 min de cañas gordas y panamericana. Importante, por este mes de agosto solo se cobraría la Admon, en septiembre el canon normal.",
+    "createdAt": "2026-08-13T19:02:02.417Z"
+  },
+  {
+    "id": "813e033d-c3c6-45c7-a576-8da99f67ee86",
+    "owner": {
+      "name": "Maria Hernandez",
+      "phone": "3156476016"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Cra 1D1 #60a-29 Barrio Villas de Veracruz.",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 0,
+    "propertyType": "casa",
+    "description": "Segundo piso.\nServicios incluidos.\n2 Cuartos.",
+    "createdAt": "2026-08-13T19:41:10.102Z"
+  },
+  {
+    "id": "1df53f5b-acac-41c4-8c7e-ebf85aed918c",
+    "owner": {
+      "name": "Raul Gil,",
+      "phone": "1 581 7452719"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Sin dirección",
+    "buildingName": "Vita- Habitare",
+    "apartmentNumber": "304",
+    "price": 1500000,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-13T20:30:53.771Z"
+  },
+  {
+    "id": "0cc88b85-d832-42ed-bdc3-d122be51b853",
+    "owner": {
+      "name": "Catalina torres",
+      "phone": "3148710101"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Calle 32AN #2-165",
+    "buildingName": "Rincón de la flora 4",
+    "apartmentNumber": "1205B",
+    "price": 0,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-13T23:10:38.655Z"
+  },
+  {
+    "id": "955080cb-c7fd-4c6e-abbe-b07b7677f400",
+    "owner": {
+      "name": "Daniela patiño",
+      "phone": "3173435223"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cl. 53 #98C-43, Cali, Valle del Cauca",
+    "buildingName": "Portal de alameda",
+    "apartmentNumber": "10",
+    "price": 0,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-14T03:46:05.512Z"
+  },
+  {
+    "id": "93119e3f-b3e0-429f-957e-6a769c77b737",
+    "owner": {
+      "name": "Yeison Sosa",
+      "phone": "3138725054"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Carrera 28",
+    "buildingName": "Amberes",
+    "apartmentNumber": "105-B",
+    "price": 700000,
+    "propertyType": "apartamento",
+    "description": "Busco familia responsable y de buenas referencias, preferiblemente una familia damnificada que necesite una vivienda temporal.\n\n📍 Parque Natura, Jamundí\n🏢 Primer piso\n🛏️ 2 habitaciones\n🚿 Cuenta con todos los servicios\n🚗 Parqueadero\n🏊 Piscina\n🏗️ Apartamento en obra gris, ideal para una familia que necesite una solución de vivienda temporal.\n\n📅 Disponibilidad únicamente hasta enero de 2027, ya que para esa fecha debo regresar a ocupar el apartamento debido a la finalización de mi contrato",
+    "createdAt": "2026-08-14T05:36:52.878Z"
+  },
+  {
+    "id": "88b7a12d-a5eb-48c7-90e4-b0bf643267fe",
+    "owner": {
+      "name": "Sin contacto",
+      "phone": "3003018839"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Ciudad guabinas",
+    "buildingName": "Alcala",
+    "apartmentNumber": null,
+    "price": 0,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-15T20:58:17.363Z"
+  },
+  {
+    "id": "07bd1379-ba43-456f-922d-7cc999ac27c4",
+    "owner": {
+      "name": "Maria Elsa Cardona",
+      "phone": "3165519138"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cra 64A 10 -36",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 950000,
+    "propertyType": "apartamento",
+    "description": "Primer piso en el limonar",
+    "createdAt": "2026-08-14T14:05:59.339Z"
+  },
+  {
+    "id": "b3b0dee5-ce4b-465d-8b66-d226e6c1b657",
+    "owner": {
+      "name": "Maria camila ospina",
+      "phone": "3117923418"
+    },
+    "city": "cali",
+    "zone": "",
+    "address": "Calle 47#120-103",
+    "buildingName": "Aurora",
+    "apartmentNumber": "354",
+    "price": 900000,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-14T14:21:28.742Z"
+  },
+  {
+    "id": "6b15482a-6ec6-481c-ae98-20ac7af0d7d4",
+    "owner": {
+      "name": "Sonia Salcedo",
+      "phone": "3505034013"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Carrera 67 B 41 34",
+    "buildingName": "Barrio ciudad 2000",
+    "apartmentNumber": "Tercer piso",
+    "price": 1500000,
+    "propertyType": "apartamento",
+    "description": "2 habitaciones,cocina,sala ,dos terazas",
+    "createdAt": "2026-08-14T15:20:19.842Z"
+  },
+  {
+    "id": "011032e8-57ce-4994-af8e-1ec300faf24a",
+    "owner": {
+      "name": "Myriam Beltrán",
+      "phone": "3152896044"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Calle 28 # 85 - 36",
+    "buildingName": "Los Robles",
+    "apartmentNumber": "802 Toore 5",
+    "price": 2300000,
+    "propertyType": "apartamento",
+    "description": "📍Ubicado en el barrio el Caney. \n📏 92 mt2. \n🪜8vo piso cuenta con ascensor. \n🛏️Tres habitaciones (dos cuentan con aire acondicionado). \n🚿 2 baños. \n🛋️ Sala de estar o estudio. \n🍳 Cocina integral. \n🛋️Sala comedor. \n🍃 Balcón. \n🚗 2 parqueaderos en línea propios. \n🏊🏻‍♂️ Piscina para niños y adultos. \n🏋🏽‍♀ Gimnasio. \n🌲Zonas verdes. \n\n🐶🐱 Se aceptan mascotas. \n\n🚨 El apartamento se encuentra en buenas condiciones después del sismo al igual que la unidad.",
+    "createdAt": "2026-08-14T16:12:21.969Z"
+  },
+  {
+    "id": "4940cb97-b3c3-4d49-b924-8d847032ce04",
+    "owner": {
+      "name": "Anuncio",
+      "phone": "3176987837"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cra 97A #42-57 Calicanto",
+    "buildingName": "Apartaestudio",
+    "apartmentNumber": "-",
+    "price": 850000,
+    "propertyType": "apartamento",
+    "description": "1 ambiente - persona sola, incluye agua, luz y gas. Disponibles en 2do y 3er piso",
+    "createdAt": "2026-08-14T16:45:52.016Z"
+  },
+  {
+    "id": "7575ce5c-e413-4e53-8322-f03bde0e6b38",
+    "owner": {
+      "name": "Anuncio",
+      "phone": "3176987837"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Cra 85 A #20-22 - Barrio Ingenio",
+    "buildingName": "-",
+    "apartmentNumber": "-",
+    "price": 900000,
+    "propertyType": "apartamento",
+    "description": "1 ambiente - Persona sola, para dos personas se aumenta 100,000 para cubrir gastos, cuarto piso, incluye los servicios de agua, luz y gas",
+    "createdAt": "2026-08-14T16:49:54.995Z"
+  },
+  {
+    "id": "33373bcc-f079-4ca6-bcab-5b6b34f1c4c6",
+    "owner": {
+      "name": "Isabel V",
+      "phone": "3008033524"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Mac Donald’s de plaza de toros",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 2000000,
+    "propertyType": "casa",
+    "description": "La casa cuenta con 2 habitaciones, 2 baños, bien ubicado en plaza de toros por el mc donalds, camas tamaño queen, sala y implementos de cocina completos, comedor, sala de estar amoblada, lavadora y nevera. Estrato 5\n\nLlenar esta info por favor \nCuál es el motivo \nPara cuánto tiempo \nCuántas personas \nTienen mascotas \n\nDocumentos requeridos \nReferencias comerciales y personales \nCarta laboral \nDepósito $500\n\nEl cannon son 2.000.000 sin contar servicios",
+    "createdAt": "2026-08-14T17:00:06.985Z"
+  },
+  {
+    "id": "bd6270de-a270-482c-8a70-18c98811d673",
+    "owner": {
+      "name": "Ricardo Guzmán",
+      "phone": "3128437743"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Calle 9 # 20 b - 146 apto 402 torre 3",
+    "buildingName": "Pamplona",
+    "apartmentNumber": "402",
+    "price": 0,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-14T17:31:20.615Z"
+  },
+  {
+    "id": "a66b5e9c-691d-417b-b2f7-0a6056bc362e",
+    "owner": {
+      "name": "María Victoria Gil",
+      "phone": "3009448032"
+    },
+    "city": "cali",
+    "zone": "oeste",
+    "address": "Carrera 4 # 12 oeste 109 in",
+    "buildingName": "Torres de Altair",
+    "apartmentNumber": "610B",
+    "price": 1800000,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-14T17:35:49.061Z"
+  },
+  {
+    "id": "6b2c4abe-931f-4e2b-a082-261ee83e5d61",
+    "owner": {
+      "name": "Pontevedra inmobiliaria",
+      "phone": "3207694056"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Calle 8B #54-61 segundo piso barrio la BASE",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 1500000,
+    "propertyType": "casa",
+    "description": "Casa bifamiliar en 2 piso , cuenta con (4) habitaciones, 3 de ellas con clóset, (2)baños, hab. ppal con baño privado, sala-comedor amplia , cocina integral con estufa y zona de oficios , parqueadero solo para moto en antejardin y 1 mascota pequeña , \n\nREQUISITOS DE VINCULACIÓN: \n•carta laboral\n•fotocopia de cc \n•3 desprendibles de pago de nómina \n•codeudor con los mismos requisitos \n•estudio con aseguradora (Afianza profesional) valor de estudio directo a aseguradora $50.000 \n\nSeagendavisitprevi",
+    "createdAt": "2026-08-14T17:57:17.065Z"
+  },
+  {
+    "id": "42709710-00da-45f0-9e43-7aaa1b90ca85",
+    "owner": {
+      "name": "Juan David Arce",
+      "phone": "3006185344"
+    },
+    "city": "cali",
+    "zone": "sur",
+    "address": "Carrera 121A #42-16",
+    "buildingName": "Conjunto Gratta - Ciudad Pacífica",
+    "apartmentNumber": "Gratta",
+    "price": 450000,
+    "propertyType": "apartamento",
+    "description": "En caso de que UN ESTUDIANTE esté buscando un lugar donde vivir, tengo disponible una habitación sin amoblar en el Conjunto Residencial Gratta.\nEl apartamento cuenta con nevera y wifi.\nEl arriendo es de $360.000, sin incluir servicios. Agua, energía, gas e internet dependen del consumo mensual; en total, el valor suele estar aproximadamente entre $450.000 y $470.000.\n\nESCRIBIR POR WHATSAPP",
+    "createdAt": "2026-08-14T19:28:35.466Z"
+  },
+  {
+    "id": "794692eb-59db-4420-8502-686e55dc351e",
+    "owner": {
+      "name": "Liliana Montaño",
+      "phone": "3156445553"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Sin dirección",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 650000,
+    "propertyType": "apartamento",
+    "description": "Es un apartamento en Prados del Norte en un segundo piso con habitación grande con baño y clóset ,sala comedor, cocineta, espacio para lavar ropa y un parqueadero \nPrecio $650.000 \nNo incluye servicios \nNo se aceptan mascotas ni niños\nContrato mínimo 1 año",
+    "createdAt": "2026-08-14T23:04:33.861Z"
+  },
+  {
+    "id": "d60fce8f-741e-41f4-a84f-0cf8c55393b7",
+    "owner": {
+      "name": "Samuel",
+      "phone": "3234242913"
+    },
+    "city": "pereira",
+    "zone": "oeste",
+    "address": "Dosquebradas",
+    "buildingName": null,
+    "apartmentNumber": null,
+    "price": 0,
+    "propertyType": "casa",
+    "description": null,
+    "createdAt": "2026-08-15T00:11:28.952Z"
+  },
+  {
+    "id": "2752b963-1f7a-4db5-8461-8d783ce7d305",
+    "owner": {
+      "name": "Juan Sebastián Restrepo",
+      "phone": "3006011705"
+    },
+    "city": "cali",
+    "zone": "oeste",
+    "address": "Calle 8 Oeste #4 oeste - 122",
+    "buildingName": "Edificio Eritreno",
+    "apartmentNumber": "Apto 101",
+    "price": 3500000,
+    "propertyType": "apartamento",
+    "description": "APARTAMENTO EN ARRIENDO – EDIFICIO ERITRENO | BELLAVISTA\n\nSe arrienda Apartamento 101 del Edificio Eritreno, ubicado en el barrio Bellavista, en un edificio sismorresistente.\n\nUna de sus grandes ventajas es su espectacular vista panorámica de Cali, acompañada de una excelente ventilación natural y una brisa muy agradable durante el día.\n\nCaracterísticas:\n\n* 3 habitaciones\n* 2 baños completos\n* Cuarto de servicio\n* Cocina\n* Sala\n* Terraza con vista panorámica de Cali\n* Excelente ventilación natur",
+    "createdAt": "2026-08-15T03:54:52.494Z"
+  },
+  {
+    "id": "bce9f83b-1d63-484a-9bc4-678b61c96962",
+    "owner": {
+      "name": "Sin contacto",
+      "phone": "3167428344"
+    },
+    "city": "cali",
+    "zone": "norte",
+    "address": "Barichara",
+    "buildingName": "Ciudad Guabinas",
+    "apartmentNumber": null,
+    "price": 0,
+    "propertyType": "apartamento",
+    "description": null,
+    "createdAt": "2026-08-15T20:55:30.303Z"
+  }
+]
