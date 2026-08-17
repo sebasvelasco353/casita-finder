@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .env
+
+# Service account keys (secretos reales, nunca al repo)
+*firebase-adminsdk*.json
+*serviceAccount*.json
