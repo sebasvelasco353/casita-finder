@@ -29,9 +29,7 @@ dist-ssr
 *firebase-adminsdk*.json
 *serviceAccount*.json
 
-processed-photos-cache/*
-bucket-casas-files
+# Imágenes del bucket de prueba (migración), no van al repo
+bucket-casas-files/
 bucket-casas-files.zip
-bucket-casas-files/*
-processed-photos-cache/*
-bucket-casas-files.zip
+processed-photos-cache/
