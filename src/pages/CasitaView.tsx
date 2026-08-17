@@ -28,6 +28,7 @@ import {
   zoneLabelByValue,
 } from "../utils/filters";
 import type { Property } from "../types";
+import { getStorageImageUrl } from "../firebase/queries/storage";
 
 const propertyTypeLabels: Record<Property["propertyType"], string> = {
   apartamento: "Apto.",
@@ -90,23 +91,15 @@ export default function CasitaView() {
           </Empty>
         )}
 
-        {!isLoading && property && (
-          <PropertyDetail
-            property={property}
-          />
-        )}
+        {!isLoading && property && <PropertyDetail property={property} />}
       </Container>
     </Layout>
   );
 }
 
-function PropertyDetail({
-  property,
-}: {
-  property: Property;
-}) {
+function PropertyDetail({ property }: { property: Property }) {
   const {
-    cover,
+    photos,
     propertyType,
     city,
     zone,
@@ -118,11 +111,12 @@ function PropertyDetail({
     price,
     available,
     createdAt,
-    contact_number
+    contact_number,
   } = property;
 
-  const title = `${propertyTypeLabelByValue[propertyType] ?? propertyType} en ${zoneLabelByValue[zone] ?? zone}`;
+  const cover = photos[0] ? getStorageImageUrl(`casas/${photos[0]}`) : null;
 
+  const title = `${propertyTypeLabelByValue[propertyType] ?? propertyType} en ${zoneLabelByValue[zone] ?? zone}`;
 
   const whatsappHref = `https://wa.me/${contact_number}?text=Hola%20quisiera%20informacion%20sobre%20la%20vivienda%20al%20${zone}%20de%20${city}`;
 

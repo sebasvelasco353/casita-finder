@@ -12,6 +12,7 @@ import { formatDistance, formatPrice } from "../utils/lib";
 import { cityLabelByValue } from "../utils/filters";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "../firebase/queries/users";
+import { getStorageImageUrl } from "../firebase/queries/storage";
 
 interface PropertyCardPropsInterface {
   data: Property;
@@ -27,7 +28,7 @@ const propertyTypeLabels: Record<Property["propertyType"], string> = {
 export default function PropertyCard({ data }: PropertyCardPropsInterface) {
   const {
     id,
-    cover,
+    photos,
     propertyType,
     city,
     zone,
@@ -41,6 +42,8 @@ export default function PropertyCard({ data }: PropertyCardPropsInterface) {
     updatedAt,
     ownerId,
   } = data;
+
+  const cover = photos[0] ? getStorageImageUrl(`casas/${photos[0]}`) : null;
 
   const { data: owner } = useQuery({
     queryKey: ["user", ownerId],

@@ -124,7 +124,7 @@ function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
     parkingType: formData.parkingType,
     description: formData.description || "",
     contact_number: toContactNumber(formData),
-    cover: null,
+    photos: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };

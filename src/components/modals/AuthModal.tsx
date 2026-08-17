@@ -9,13 +9,17 @@ import Pill from "../Pill";
 import { getPropertiesByOwner } from "../../firebase/queries/properties";
 import { cityLabelByValue, zoneLabelByValue } from "../../utils/filters";
 import { formatPrice } from "../../utils/lib";
+import { getStorageImageUrl } from "../../firebase/queries/storage";
 
 interface AuthModalPropsInterface {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose }: AuthModalPropsInterface) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+}: AuthModalPropsInterface) {
   const { user, loading, signOut } = useAuth();
 
   return (
@@ -36,7 +40,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalPropsInterface) 
             </span>
           </p>
           <MyProperties ownerId={user.uid} onNavigate={onClose} />
-          <Button variant="secondary" handleClick={() => void signOut().then(onClose)}>
+          <Button
+            variant="secondary"
+            handleClick={() => void signOut().then(onClose)}
+          >
             Cerrar sesión
           </Button>
         </div>
@@ -83,9 +90,9 @@ function MyProperties({
                 className="flex items-center gap-3 rounded-lg border border-gray-91 bg-gray-98 p-3 hover:bg-gray-93"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-91 text-orange-42/70 overflow-hidden">
-                  {property.cover ? (
+                  {property.photos[0] ? (
                     <img
-                      src={property.cover}
+                      src={getStorageImageUrl(`casas/${property.photos[0]}`)}
                       alt=""
                       className="h-full w-full object-cover"
                     />
@@ -98,7 +105,9 @@ function MyProperties({
                     {cityLabelByValue[property.city] ?? property.city} ·{" "}
                     {zoneLabelByValue[property.zone] ?? property.zone}
                   </p>
-                  <p className="text-xs text-orange-42">{formatPrice(property.price)}</p>
+                  <p className="text-xs text-orange-42">
+                    {formatPrice(property.price)}
+                  </p>
                 </div>
                 <Pill variant={property.available ? "primary" : "secondary"}>
                   {property.available ? "Disponible" : "No disponible"}
