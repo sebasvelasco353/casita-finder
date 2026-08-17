@@ -15,9 +15,9 @@ export default function Header() {
           <a className="py-1 px-3" href="/casitas">
             Casitas
           </a>
-          <a className="py-1 px-3" href="/bodegas">
+          {/* <a className="py-1 px-3" href="/bodegas">
             Bodegaje
-          </a>
+          </a> */}
           {!loading && (
             <button
               type="button"
