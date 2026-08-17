@@ -51,7 +51,6 @@ function Home() {
   });
 
   const properties = data?.pages.flatMap((page) => page.items) ?? [];
-  console.log(properties);
 
   return (
     <Layout>
