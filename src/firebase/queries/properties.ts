@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getCountFromServer,
   getDoc,
   getDocs,
   limit,
@@ -37,11 +38,9 @@ function toQueryFilters(ui: FiltersInterface): Filters {
   };
 }
 
-export async function getPaginatedProperties(
-  ui: FiltersInterface = {},
-  cursor?: QueryDocumentSnapshot<DocumentData>,
-) {
-  const filters = toQueryFilters(ui);
+// Constraints compartidas por getPaginatedProperties y getPropertiesCount
+// (todo menos orderBy/limit/startAfter, que solo aplican a la paginación).
+function buildFilterConstraints(filters: Filters): QueryConstraint[] {
   const constraints: QueryConstraint[] = [where("available", "==", true)];
 
   if (filters.city) constraints.push(where("city", "==", filters.city));
@@ -55,10 +54,22 @@ export async function getPaginatedProperties(
 
   if (filters.maxPrice === "gratis") {
     constraints.push(where("price", "==", 0));
-    constraints.push(orderBy("updatedAt", "desc"));
   } else if (filters.maxPrice) {
-    // range filter on price forces Firestore's first orderBy onto price too
     constraints.push(where("price", "<=", Number(filters.maxPrice)));
+  }
+
+  return constraints;
+}
+
+export async function getPaginatedProperties(
+  ui: FiltersInterface = {},
+  cursor?: QueryDocumentSnapshot<DocumentData>,
+) {
+  const filters = toQueryFilters(ui);
+  const constraints = buildFilterConstraints(filters);
+
+  if (filters.maxPrice && filters.maxPrice !== "gratis") {
+    // range filter on price forces Firestore's first orderBy onto price too
     constraints.push(orderBy("price", "asc"));
   } else {
     constraints.push(orderBy("updatedAt", "desc"));
@@ -78,6 +89,17 @@ export async function getPaginatedProperties(
       : undefined;
 
   return { items, nextCursor };
+}
+
+export async function getPropertiesCount(ui: FiltersInterface = {}) {
+  const filters = toQueryFilters(ui);
+  const constraints = buildFilterConstraints(filters);
+
+  const snap = await getCountFromServer(
+    query(collection(db, "properties"), ...constraints),
+  );
+
+  return snap.data().count;
 }
 
 function toContactNumber(formData: PublishPropertyFormDataInterface) {

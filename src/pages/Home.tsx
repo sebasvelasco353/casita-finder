@@ -10,8 +10,11 @@ import casitaIcon from "../assets/casita_icon.svg";
 import searchIcon from "../assets/search_icon.svg";
 import PublishPropertyModal from "../components/modals/PublishPropertyModal";
 import Layout from "../components/Layout";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getPaginatedProperties } from "../firebase/queries/properties";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  getPaginatedProperties,
+  getPropertiesCount,
+} from "../firebase/queries/properties";
 import {
   Empty,
   EmptyDescription,
@@ -52,6 +55,11 @@ function Home() {
 
   const properties = data?.pages.flatMap((page) => page.items) ?? [];
 
+  const { data: propertiesCount } = useQuery({
+    queryKey: ["properties-count", filters],
+    queryFn: () => getPropertiesCount(filters),
+  });
+
   return (
     <Layout>
       <section className="bg-gray-91 py-10">
@@ -87,7 +95,7 @@ function Home() {
               <h2 className="font-bold text-3xl text-orange-18">
                 Casitas disponibles
               </h2>
-              <Pill variant="tertiary">{properties.length} avisos</Pill>
+              <Pill variant="tertiary">{propertiesCount ?? 0} avisos</Pill>
             </div>
             <Button
               className="max-w-52 mt-2.5 md:mt-0"
