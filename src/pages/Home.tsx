@@ -55,7 +55,6 @@ function Home() {
 
   const properties = data?.pages.flatMap((page) => page.items) ?? [];
 
-
   const { data: propertiesCount } = useQuery({
     queryKey: ["properties-count", filters],
     queryFn: () => getPropertiesCount(filters),

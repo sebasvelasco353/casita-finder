@@ -91,13 +91,6 @@ export async function getPaginatedProperties(
   return { items, nextCursor };
 }
 
-function toContactNumber(formData: PublishPropertyFormDataInterface) {
-  return `${formData.countryCode}${formData.phoneNumber}`.replace(
-    /[^\d+]/g,
-    "",
-  );
-}
-
 export async function getPropertiesCount(ui: FiltersInterface = {}) {
   const filters = toQueryFilters(ui);
   const constraints = buildFilterConstraints(filters);
@@ -107,6 +100,13 @@ export async function getPropertiesCount(ui: FiltersInterface = {}) {
   );
 
   return snap.data().count;
+}
+
+function toContactNumber(formData: PublishPropertyFormDataInterface) {
+  return `${formData.countryCode}${formData.phoneNumber}`.replace(
+    /[^\d+]/g,
+    "",
+  );
 }
 
 function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
