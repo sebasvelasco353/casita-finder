@@ -66,10 +66,10 @@ function toFormData(property: Property): EditPropertyFormDataInterface {
     floor: String(property.floor ?? ""),
     price: String(property.price ?? ""),
     bedrooms:
-      property.bedrooms >= 4
+      (property.bedrooms ?? 0) >= 4
         ? "4+"
         : (String(
-            property.bedrooms,
+            property.bedrooms ?? "",
           ) as EditPropertyFormDataInterface["bedrooms"]),
     furnished: property.furnished,
     petsAllowed: property.petsAllowed,
