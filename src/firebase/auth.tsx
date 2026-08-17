@@ -1,39 +1,19 @@
 import {
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  isSignInWithEmailLink,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  sendSignInLinkToEmail,
-  signInWithEmailAndPassword,
-  signInWithEmailLink,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  updateProfile,
-  type User,
-} from 'firebase/auth'
-import {
   createContext,
   useContext,
   useEffect,
   useState,
   type ReactNode,
 } from 'react'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { auth, db } from './config'
-
-const EMAIL_FOR_SIGN_IN_KEY = 'emailForSignIn'
-
-interface SignUpDetails {
-  firstName: string
-  lastName?: string
-  phone: string
-}
+import type { ConfirmationResult, RecaptchaVerifier, User } from 'firebase/auth'
+import * as authService from './queries/auth'
+import type { SignUpDetails } from './queries/auth'
 
 interface AuthContextValue {
   user: User | null
   loading: boolean
   pendingEmailLink: boolean
+  phoneCodeSent: boolean
   signUpWithPassword: (
     email: string,
     password: string,
@@ -44,42 +24,35 @@ interface AuthContextValue {
   sendEmailLink: (email: string) => Promise<void>
   completeEmailLinkSignIn: (email: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
+  sendPhoneCode: (
+    phoneNumber: string,
+    verifier: RecaptchaVerifier,
+  ) => Promise<void>
+  confirmPhoneCode: (code: string) => Promise<void>
+  cancelPhoneCode: () => void
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-async function ensureUserProfile(user: User, details?: SignUpDetails) {
-  const ref = doc(db, 'users', user.uid)
-  const snap = await getDoc(ref)
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      email: user.email,
-      displayName: user.displayName ?? null,
-      firstName: details?.firstName ?? null,
-      lastName: details?.lastName ?? null,
-      phone: details?.phone ?? null,
-      createdAt: serverTimestamp(),
-    })
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [pendingEmailLink, setPendingEmailLink] = useState(false)
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null)
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (nextUser) => {
+    return authService.subscribeToAuthState((nextUser) => {
       setUser(nextUser)
       setLoading(false)
     })
   }, [])
 
   useEffect(() => {
-    if (!isSignInWithEmailLink(auth, window.location.href)) return
+    const { isEmailLink, storedEmail } = authService.checkPendingEmailLink()
+    if (!isEmailLink) return
 
-    const storedEmail = window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY)
     if (storedEmail) {
       void completeEmailLinkSignIn(storedEmail)
     } else {
@@ -92,56 +65,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     details: SignUpDetails,
   ) {
-    const { user: newUser } = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    )
-    const displayName = [details.firstName, details.lastName]
-      .filter(Boolean)
-      .join(' ')
-    await updateProfile(newUser, { displayName })
-    await ensureUserProfile(newUser, details)
+    await authService.signUpWithPassword(email, password, details)
   }
 
   async function signInWithPassword(email: string, password: string) {
-    await signInWithEmailAndPassword(auth, email, password)
+    await authService.signInWithPassword(email, password)
   }
 
   async function resetPassword(email: string) {
-    await sendPasswordResetEmail(auth, email)
+    await authService.resetPassword(email)
   }
 
   async function sendEmailLink(email: string) {
-    await sendSignInLinkToEmail(auth, email, {
-      url: window.location.origin + '/',
-      handleCodeInApp: true,
-    })
-    window.localStorage.setItem(EMAIL_FOR_SIGN_IN_KEY, email)
+    await authService.sendEmailLink(email)
   }
 
   async function completeEmailLinkSignIn(email: string) {
-    const { user: newUser } = await signInWithEmailLink(
-      auth,
-      email,
-      window.location.href,
-    )
-    window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY)
+    await authService.completeEmailLinkSignIn(email)
     setPendingEmailLink(false)
-    window.history.replaceState(null, '', window.location.pathname)
-    await ensureUserProfile(newUser)
   }
 
   async function signInWithGoogle() {
-    const { user: newUser } = await signInWithPopup(
-      auth,
-      new GoogleAuthProvider(),
-    )
-    await ensureUserProfile(newUser)
+    await authService.signInWithGoogle()
+  }
+
+  async function sendPhoneCode(phoneNumber: string, verifier: RecaptchaVerifier) {
+    const result = await authService.sendPhoneCode(phoneNumber, verifier)
+    setConfirmationResult(result)
+  }
+
+  async function confirmPhoneCode(code: string) {
+    if (!confirmationResult) {
+      throw new Error('No hay un código pendiente de confirmación')
+    }
+    await authService.confirmPhoneCode(confirmationResult, code)
+    setConfirmationResult(null)
+  }
+
+  function cancelPhoneCode() {
+    setConfirmationResult(null)
   }
 
   async function signOut() {
-    await firebaseSignOut(auth)
+    await authService.signOutUser()
   }
 
   return (
@@ -150,12 +116,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         pendingEmailLink,
+        phoneCodeSent: confirmationResult !== null,
         signUpWithPassword,
         signInWithPassword,
         resetPassword,
         sendEmailLink,
         completeEmailLinkSignIn,
         signInWithGoogle,
+        sendPhoneCode,
+        confirmPhoneCode,
+        cancelPhoneCode,
         signOut,
       }}
     >
