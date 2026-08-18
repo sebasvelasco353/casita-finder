@@ -136,6 +136,7 @@ function toParking(
 function toPropertyDoc(
   formData: PublishPropertyFormDataInterface,
   contactNumber: string,
+  photoCount: number,
 ) {
   return {
     available: true,
@@ -152,6 +153,13 @@ function toPropertyDoc(
     description: formData.description || "",
     contact_number: contactNumber,
     photos: [],
+    // El pipeline de imágenes (functions/src/index.ts) usa estos dos campos
+    // para saber cuándo ya procesó todas las fotos subidas al publicar, y
+    // recién ahí envía el correo de "casita publicada" (con la portada ya
+    // disponible) en vez de dispararlo apenas se crea el documento.
+    expectedPhotos: photoCount,
+    processedPhotos: 0,
+    emailSent: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
@@ -160,6 +168,7 @@ function toPropertyDoc(
 export async function createProperty(
   formData: PublishPropertyFormDataInterface,
   contactNumber: string,
+  photoCount: number,
 ) {
   const user = auth.currentUser;
   if (!user) throw new Error("Debes iniciar sesión");
@@ -167,7 +176,7 @@ export async function createProperty(
   const propertyRef = doc(collection(db, "properties"));
   await setDoc(propertyRef, {
     ownerId: user.uid,
-    ...toPropertyDoc(formData, contactNumber),
+    ...toPropertyDoc(formData, contactNumber, photoCount),
   });
 
   return propertyRef.id;

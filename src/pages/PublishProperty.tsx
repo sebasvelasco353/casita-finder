@@ -135,7 +135,11 @@ export default function PublishProperty() {
       return;
     }
     try {
-      const propertyId = await createProperty(formData, user.phoneNumber);
+      const propertyId = await createProperty(
+        formData,
+        user.phoneNumber,
+        selectedFiles.length,
+      );
       if (selectedFiles.length) {
         await uploadCasaImages(propertyId, selectedFiles);
       }

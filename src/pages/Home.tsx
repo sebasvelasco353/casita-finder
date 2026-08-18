@@ -10,7 +10,6 @@ import FilterPills from "../components/FilterPills";
 import Pill from "../components/Pill";
 import PropertyCard from "../components/PropertyCard";
 import casitaIcon from "../assets/casita_icon.svg";
-import searchIcon from "../assets/search_icon.svg";
 import AuthModal from "../components/modals/AuthModal";
 import Layout from "../components/Layout";
 import { useAuth } from "../providers/authFirebase";
