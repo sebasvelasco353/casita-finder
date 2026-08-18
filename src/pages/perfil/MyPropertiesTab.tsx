@@ -12,6 +12,7 @@ import { HomeIcon } from "lucide-react";
 import PublishPropertyModal from "../../components/modals/PublishPropertyModal";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import { cityLabelByValue, zoneLabelByValue } from "../../utils/filters";
+import { toast } from "sonner";
 
 function MyPropertiesTab({ ownerId }: { ownerId: string }) {
   const queryClient = useQueryClient();
