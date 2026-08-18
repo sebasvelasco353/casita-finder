@@ -128,12 +128,14 @@ function PropertyDetail({ property }: { property: Property }) {
     updatedAt,
     ownerId,
     parking,
+    description,
   } = property;
 
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { requestDelete, modal: deleteModal } = useDeleteProperty(property, () =>
-    navigate("/"),
+  const { requestDelete, modal: deleteModal } = useDeleteProperty(
+    property,
+    () => navigate("/"),
   );
 
   const cover = photos[0]
@@ -268,6 +270,13 @@ function PropertyDetail({ property }: { property: Property }) {
           {cityLabelByValue[city] ?? city} · Piso {floor}
         </p>
       </div>
+
+      {description && (
+        <div className="mt-6">
+          <h2 className="font-bold text-orange-18">Descripción</h2>
+          <p className="text-sm text-orange-42 mt-1">{description}</p>
+        </div>
+      )}
       <a
         href={whatsappHref}
         target="_blank"
