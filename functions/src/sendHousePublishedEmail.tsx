@@ -1,9 +1,9 @@
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
-import { defineSecret } from "firebase-functions/params";
-import { getFirestore } from "firebase-admin/firestore";
-import { render } from "react-email";
-import { Resend } from "resend";
-import { HousePublishedEmail } from "./emails/house-published";
+import {onDocumentCreated} from "firebase-functions/v2/firestore";
+import {defineSecret} from "firebase-functions/params";
+import {getFirestore} from "firebase-admin/firestore";
+import {render} from "react-email";
+import {Resend} from "resend";
+import {HousePublishedEmail} from "./emails/house-published";
 
 export const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
 
@@ -46,10 +46,11 @@ const zoneLabels: Record<string, string> = {
 function toPublicImageUrl(propertyId: string, fileName: string): string {
   const path = `casas/${propertyId}/images/${fileName}`;
   const base =
-    process.env.FUNCTIONS_EMULATOR === "true"
-      ? "http://localhost:9199"
-      : "https://firebasestorage.googleapis.com";
-  return `${base}/v0/b/${STORAGE_BUCKET}/o/${encodeURIComponent(path)}?alt=media`;
+    process.env.FUNCTIONS_EMULATOR === "true" ?
+      "http://localhost:9199" :
+      "https://firebasestorage.googleapis.com";
+  const encodedPath = encodeURIComponent(path);
+  return `${base}/v0/b/${STORAGE_BUCKET}/o/${encodedPath}?alt=media`;
 }
 
 /**
@@ -97,9 +98,9 @@ export async function sendHousePublishedEmailFor(
       houseName={houseName}
       price={formatPrice(property.price)}
       houseImage={
-        property.photos?.[0]
-          ? toPublicImageUrl(propertyId, property.photos[0])
-          : undefined
+        property.photos?.[0] ?
+          toPublicImageUrl(propertyId, property.photos[0]) :
+          undefined
       }
       publishedLink={`${APP_BASE_URL}/property/${propertyId}/edit`}
     />,
@@ -123,7 +124,7 @@ export async function sendHousePublishedEmailFor(
  * vez. Si sí lleva fotos, se queda callado: el pipeline se encarga.
  */
 export const sendHousePublishedEmail = onDocumentCreated(
-  { document: "properties/{propertyId}", secrets: [RESEND_API_KEY] },
+  {document: "properties/{propertyId}", secrets: [RESEND_API_KEY]},
   async (event) => {
     const property = event.data?.data();
     if (!property) return;
@@ -134,7 +135,7 @@ export const sendHousePublishedEmail = onDocumentCreated(
     const claimed = await getFirestore().runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       if (!snap.exists || snap.data()?.emailSent) return false;
-      tx.update(ref, { emailSent: true });
+      tx.update(ref, {emailSent: true});
       return true;
     });
     if (!claimed) return;

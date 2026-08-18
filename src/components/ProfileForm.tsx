@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import {
-  isValidPhoneNumber,
-  parsePhoneNumberFromString,
-} from "libphonenumber-js";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { toast } from "sonner";
 import TextField from "./TextField";
 import Button from "./Button";
@@ -35,9 +32,10 @@ export default function ProfileForm({ user }: { user: User }) {
   async function submit(values: ProfileFormValuesInterface) {
     setError(null);
     try {
-      const phoneNumber = values.phoneNumber
-        ? parsePhoneNumberFromString(values.phoneNumber, "CO")!.number
-        : undefined;
+      const phoneNumber = parsePhoneNumberFromString(
+        values.phoneNumber,
+        "CO",
+      )!.number;
       const displayName = [values.name, values.lastName]
         .filter(Boolean)
         .join(" ");
@@ -45,7 +43,7 @@ export default function ProfileForm({ user }: { user: User }) {
         name: values.name,
         lastName: values.lastName,
         displayName,
-        ...(phoneNumber ? { phoneNumber } : {}),
+        phoneNumber,
       });
       await refreshUser();
       toast.success("Perfil actualizado.");
@@ -92,10 +90,14 @@ export default function ProfileForm({ user }: { user: User }) {
         name="phoneNumber"
         control={control}
         rules={{
-          validate: (value) =>
-            !value ||
-            isValidPhoneNumber(value, "CO") ||
-            "Ingresa un número de teléfono válido.",
+          required: "Ingresa tu número de teléfono.",
+          validate: (value) => {
+            const parsed = parsePhoneNumberFromString(value, "CO");
+            return (
+              (parsed?.isValid() && parsed.country === "CO") ||
+              "Ingresa un número de teléfono colombiano válido."
+            );
+          },
         }}
         render={({ field }) => (
           <TextField
@@ -105,6 +107,7 @@ export default function ProfileForm({ user }: { user: User }) {
             value={field.value}
             onChange={field.onChange}
             className="sm:max-w-xs"
+            required
           />
         )}
       />

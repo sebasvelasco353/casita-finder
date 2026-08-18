@@ -1,5 +1,6 @@
 import {setGlobalOptions} from "firebase-functions";
 import {onObjectFinalized} from "firebase-functions/v2/storage";
+import {onDocumentDeleted} from "firebase-functions/v2/firestore";
 import {initializeApp} from "firebase-admin/app";
 import {getStorage} from "firebase-admin/storage";
 import {getFirestore} from "firebase-admin/firestore";
@@ -96,5 +97,18 @@ export const processCasaImage = onObjectFinalized(
     }
 
     await recordPhotoProcessed(casaId, webpFileName);
+  },
+);
+
+// El cliente no puede borrar las fotos: las Storage Rules niegan write en
+// casas/{id}/images/** y, para casas/{id}/uploads/**, exigen leer el doc de
+// la property que ya se acaba de borrar. Se limpia acá con el Admin SDK.
+export const deleteCasaImages = onDocumentDeleted(
+  "properties/{propertyId}",
+  async (event) => {
+    const {propertyId} = event.params;
+    await getStorage().bucket().deleteFiles({
+      prefix: `casas/${propertyId}/`,
+    });
   },
 );

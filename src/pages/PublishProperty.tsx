@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, TriangleAlert } from "lucide-react";
 import Layout from "../components/Layout";
 import Container from "../components/Container";
 import TextField from "../components/TextField";
@@ -11,6 +11,14 @@ import ToggleGroup from "../components/ToggleGroup";
 import Dropdown from "../components/Dropdown";
 import Button from "../components/Button";
 import ImagePicker from "../components/ImagePicker";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../components/empty";
 import { createProperty } from "../firebase/queries/properties";
 import { uploadCasaImages } from "../firebase/queries/storage";
 import { useAuth } from "../providers/authFirebase";
@@ -113,7 +121,7 @@ function Divider() {
 export default function PublishProperty() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [publishError, setPublishError] = useState<string | null>(null);
 
@@ -153,6 +161,40 @@ export default function PublishProperty() {
     } catch (err) {
       setPublishError(err instanceof Error ? err.message : "Algo salió mal");
     }
+  }
+
+  if (!authLoading && !user?.phoneNumber) {
+    return (
+      <Layout>
+        <Container className="items-start py-8 w-full flex-1">
+          <a
+            href="/"
+            className="flex items-center gap-1 text-sm text-orange-42 mb-4"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Volver a casitas
+          </a>
+
+          <Empty className="border border-orange-86 border-dashed bg-white w-full">
+            <EmptyHeader>
+              <EmptyMedia variant="icon" className="bg-orange-86">
+                <TriangleAlert className="text-orange-47" />
+              </EmptyMedia>
+              <EmptyTitle>Completa tu perfil para publicar</EmptyTitle>
+              <EmptyDescription>
+                Necesitamos tu número de teléfono para que los interesados
+                puedan escribirte por WhatsApp cuando publiques una casita.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button handleClick={() => navigate("/perfil")}>
+                Ir a mi perfil
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </Container>
+      </Layout>
+    );
   }
 
   return (
@@ -320,7 +362,11 @@ export default function PublishProperty() {
             name="description"
             control={control}
             render={({ field }) => (
-              <TextField label="Descripción (opcional)" as="textarea" {...field} />
+              <TextField
+                label="Descripción (opcional)"
+                as="textarea"
+                {...field}
+              />
             )}
           />
 

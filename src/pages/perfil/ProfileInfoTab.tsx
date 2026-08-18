@@ -17,7 +17,7 @@ function ProfileInfoTab() {
         title="Información personal"
         description="Estos datos nos ayudan a ponerte en contacto con quienes publican o buscan casitas."
       >
-        <ProfileForm user={user} />
+        <ProfileForm key={user.id} user={user} />
       </SettingsSection>
 
       <SettingsSection
