@@ -1,462 +1,193 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { HouseIcon } from "lucide-react";
-import { RecaptchaVerifier } from "firebase/auth";
-import { useAuth } from "../../firebase/auth";
-import { auth } from "../../firebase/config";
-import Modal from "./Modal";
+import { FirebaseError } from "firebase/app";
+import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import Button from "../Button";
-import Pill from "../Pill";
-import { getPropertiesByOwner } from "../../firebase/queries/properties";
-import { cityLabelByValue, zoneLabelByValue } from "../../utils/filters";
-import { formatPrice } from "../../utils/lib";
-import { getStorageImageUrl } from "../../firebase/queries/storage";
+import TextField from "../TextField";
+import {
+  signInWithGoogle,
+  signInWithPassword,
+  signUpWithPassword,
+} from "../../firebase/queries/auth";
+import { useAuth } from "../../providers/authFirebase";
+import Modal from "./Modal";
 
 interface AuthModalPropsInterface {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function AuthModal({
-  isOpen,
-  onClose,
-}: AuthModalPropsInterface) {
-  const { user, loading, signOut } = useAuth();
+type Mode = "login" | "signup";
+
+const ERROR_MESSAGES: Record<string, string> = {
+  "auth/invalid-credential": "Correo o contraseña incorrectos.",
+  "auth/wrong-password": "Correo o contraseña incorrectos.",
+  "auth/user-not-found": "Correo o contraseña incorrectos.",
+  "auth/email-already-in-use": "Ya existe una cuenta con este correo.",
+  "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+  "auth/popup-closed-by-user":
+    "Se cerró la ventana de Google antes de completar el inicio de sesión.",
+  "auth/network-request-failed": "Problema de conexión. Inténtalo de nuevo.",
+};
+const FALLBACK_ERROR = "Algo salió mal. Inténtalo de nuevo.";
+
+function getAuthErrorMessage(err: unknown): string {
+  if (err instanceof FirebaseError) {
+    return ERROR_MESSAGES[err.code] ?? FALLBACK_ERROR;
+  }
+  return FALLBACK_ERROR;
+}
+
+export default function AuthModal({ isOpen, onClose }: AuthModalPropsInterface) {
+  const { refreshUser } = useAuth();
+  const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleModeSwitch = () => {
+    setMode((current) => (current === "login" ? "signup" : "login"));
+    setError(null);
+  };
+
+  const handleGoogleClick = async () => {
+    setGoogleSubmitting(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+      await refreshUser();
+      toast.success("Sesión iniciada correctamente.");
+      onClose();
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      if (mode === "login") {
+        await signInWithPassword(email, password);
+      } else {
+        await signUpWithPassword(email, password, { name, lastName });
+      }
+      await refreshUser();
+      toast.success(
+        mode === "login"
+          ? "Sesión iniciada correctamente."
+          : "Cuenta creada correctamente.",
+      );
+      onClose();
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={user ? "Mi cuenta" : undefined}
+      title={mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
       className="max-w-sm"
     >
-      {loading ? (
-        <p className="py-4 text-center text-orange-42">Cargando…</p>
-      ) : user ? (
-        <div className="flex flex-col items-center gap-4 py-4 text-center">
-          <p className="text-orange-42">
-            Sesión iniciada como{" "}
-            <span className="font-semibold text-orange-18">
-              {user.displayName ?? user.email}
-            </span>
-          </p>
-          <MyProperties ownerId={user.uid} onNavigate={onClose} />
-          <Button
-            variant="secondary"
-            handleClick={() => void signOut().then(onClose)}
-          >
-            Cerrar sesión
-          </Button>
-        </div>
-      ) : (
-        <AuthForm />
-      )}
-    </Modal>
-  );
-}
-
-function MyProperties({
-  ownerId,
-  onNavigate,
-}: {
-  ownerId: string;
-  onNavigate: () => void;
-}) {
-  const { data: properties, isLoading } = useQuery({
-    queryKey: ["properties", "owner", ownerId],
-    queryFn: () => getPropertiesByOwner(ownerId),
-  });
-
-  return (
-    <div className="w-full text-left">
-      <h3 className="font-bold text-orange-18">Mis propiedades</h3>
-
-      {isLoading && (
-        <p className="mt-2 text-sm text-orange-42">Cargando tus propiedades…</p>
-      )}
-
-      {!isLoading && properties?.length === 0 && (
-        <p className="mt-2 text-sm text-orange-42">
-          Aún no has publicado ninguna propiedad.
-        </p>
-      )}
-
-      {!isLoading && properties && properties.length > 0 && (
-        <ul className="mt-2 flex flex-col gap-2">
-          {properties.map((property) => (
-            <li key={property.id}>
-              <Link
-                to={`/property/${property.id}/edit`}
-                onClick={onNavigate}
-                className="flex items-center gap-3 rounded-lg border border-gray-91 bg-gray-98 p-3 hover:bg-gray-93"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-91 text-orange-42/70 overflow-hidden">
-                  {property.photos[0] ? (
-                    <img
-                      src={getStorageImageUrl(`casas/${property.id}/images/${property.photos[0]}`)}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <HouseIcon className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-orange-18">
-                    {cityLabelByValue[property.city] ?? property.city} ·{" "}
-                    {zoneLabelByValue[property.zone] ?? property.zone}
-                  </p>
-                  <p className="text-xs text-orange-42">
-                    {formatPrice(property.price)}
-                  </p>
-                </div>
-                <Pill variant={property.available ? "primary" : "secondary"}>
-                  {property.available ? "Disponible" : "No disponible"}
-                </Pill>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-type Mode = "passwordless" | "login" | "signup" | "forgot";
-type PasswordlessTab = "email" | "sms";
-
-const INPUT =
-  "w-full rounded-lg border border-gray-91 bg-white px-4 py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2 focus:ring-orange-47";
-const BTN_PRIMARY =
-  "cursor-pointer rounded-full bg-orange-47 px-6 py-3 text-sm font-semibold text-gray-99 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
-const BTN_SECONDARY =
-  "mt-2.5 w-full cursor-pointer rounded-full border border-orange-47 bg-transparent px-6 py-3 text-sm font-semibold text-orange-47 hover:bg-orange-91 disabled:cursor-not-allowed disabled:opacity-50";
-const LINK_BTN = "cursor-pointer text-sm text-orange-47 underline hover:opacity-80";
-const TAB = "pb-2 text-sm font-semibold";
-const TAB_ACTIVE = "border-b-2 border-orange-47 text-orange-47";
-const TAB_INACTIVE = "text-orange-42";
-
-function AuthForm() {
-  const {
-    pendingEmailLink,
-    phoneCodeSent,
-    signUpWithPassword,
-    signInWithPassword,
-    resetPassword,
-    sendEmailLink,
-    completeEmailLinkSignIn,
-    signInWithGoogle,
-    sendPhoneCode,
-    confirmPhoneCode,
-    cancelPhoneCode,
-  } = useAuth();
-
-  const [mode, setMode] = useState<Mode>("passwordless");
-  const [passwordlessTab, setPasswordlessTab] = useState<PasswordlessTab>("email");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-  const verifierRef = useRef<RecaptchaVerifier | null>(null);
-
-  useEffect(() => {
-    return () => {
-      verifierRef.current?.clear();
-      verifierRef.current = null;
-      cancelPhoneCode();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function getVerifier() {
-    if (!verifierRef.current) {
-      verifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
-        size: "invisible",
-      });
-    }
-    return verifierRef.current;
-  }
-
-  async function run(action: () => Promise<void>, successMessage?: string) {
-    setError(null);
-    setMessage(null);
-    setBusy(true);
-    try {
-      await action();
-      if (successMessage) setMessage(successMessage);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function switchPasswordlessTab(tab: PasswordlessTab) {
-    setPasswordlessTab(tab);
-    setError(null);
-    setMessage(null);
-  }
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (mode === "login") {
-      void run(() => signInWithPassword(email, password));
-    } else if (mode === "signup") {
-      void run(() =>
-        signUpWithPassword(email, password, {
-          firstName,
-          lastName: lastName || undefined,
-          phone,
-        }),
-      );
-    } else if (mode === "forgot") {
-      void run(
-        () => resetPassword(email),
-        "Revisa tu correo para restablecer tu contraseña.",
-      );
-    } else if (passwordlessTab === "sms") {
-      void run(() => sendPhoneCode(phone, getVerifier()));
-    } else {
-      void run(
-        () => sendEmailLink(email),
-        "Te enviamos un enlace de acceso a tu correo.",
-      );
-    }
-  }
-
-  const recaptchaContainer = <div ref={recaptchaContainerRef} />;
-
-  if (pendingEmailLink) {
-    return (
-      <>
-      <div className="mx-auto my-12 w-full max-w-sm rounded-lg border border-orange-86 bg-gray-98 p-6 text-left">
-        <h2 className="mb-4 text-xl font-bold text-orange-18">Confirma tu correo</h2>
-        <p className="text-sm text-orange-42">
-          Ingresa tu correo para completar el inicio de sesión.
-        </p>
-        <form
-          className="mt-4 flex flex-col gap-2.5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void run(() => completeEmailLinkSignIn(email));
-          }}
-        >
-          <input
-            type="email"
-            placeholder="tu@correo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className={INPUT}
-          />
-          <button type="submit" disabled={busy} className={BTN_PRIMARY}>
-            Confirmar
-          </button>
-        </form>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      </div>
-      {recaptchaContainer}
-      </>
-    );
-  }
-
-  if (phoneCodeSent) {
-    return (
-      <>
-      <div className="mx-auto my-12 w-full max-w-sm rounded-lg border border-orange-86 bg-gray-98 p-6 text-left">
-        <h2 className="mb-4 text-xl font-bold text-orange-18">Confirma tu número</h2>
-        <p className="text-sm text-orange-42">
-          Ingresa el código de 6 dígitos que enviamos por SMS.
-        </p>
-        <form
-          className="mt-4 flex flex-col gap-2.5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void run(() => confirmPhoneCode(code));
-          }}
-        >
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            maxLength={6}
-            placeholder="123456"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-            className={INPUT}
-          />
-          <button type="submit" disabled={busy} className={BTN_PRIMARY}>
-            Confirmar
-          </button>
-        </form>
-        <button
-          type="button"
-          className={`${LINK_BTN} mt-3`}
-          onClick={() => {
-            cancelPhoneCode();
-            setCode("");
-            setError(null);
-          }}
-        >
-          Usar otro número
-        </button>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      </div>
-      {recaptchaContainer}
-      </>
-    );
-  }
-
-  return (
-    <>
-    <div className="mx-auto my-12 w-full max-w-sm rounded-lg border border-orange-86 bg-gray-98 p-6 text-left">
-      <h2 className="mb-4 text-xl font-bold text-orange-18">
-        {mode === "passwordless" && "Acceder sin contraseña"}
-        {mode === "login" && "Iniciar sesión"}
-        {mode === "signup" && "Crear cuenta"}
-        {mode === "forgot" && "Recuperar contraseña"}
-      </h2>
-
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void run(signInWithGoogle)}
-        className={BTN_SECONDARY}
+      <Button
+        variant="primary"
+        handleClick={() => void handleGoogleClick()}
+        disabled={googleSubmitting || submitting}
+        className="w-full"
       >
-        Continuar con Google
-      </button>
+        <svg viewBox="0 0 48 48" className="w-5 h-5" aria-hidden="true">
+          <path
+            fill="#FFC107"
+            d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+          />
+          <path
+            fill="#FF3D00"
+            d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+          />
+          <path
+            fill="#4CAF50"
+            d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+          />
+          <path
+            fill="#1976D2"
+            d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+          />
+        </svg>
+        {googleSubmitting ? "Conectando..." : "Continuar con Google"}
+      </Button>
 
-      {mode === "passwordless" && (
-        <div className="mb-1 mt-4 flex gap-4 border-b border-gray-91">
-          <button
-            type="button"
-            className={`${TAB} ${passwordlessTab === "email" ? TAB_ACTIVE : TAB_INACTIVE}`}
-            onClick={() => switchPasswordlessTab("email")}
-          >
-            Correo
-          </button>
-          <button
-            type="button"
-            className={`${TAB} ${passwordlessTab === "sms" ? TAB_ACTIVE : TAB_INACTIVE}`}
-            onClick={() => switchPasswordlessTab("sms")}
-          >
-            SMS
-          </button>
-        </div>
-      )}
+      <div className="flex items-center gap-3 my-4">
+        <div className="h-px flex-1 bg-gray-91" />
+        <span className="text-xs text-orange-42">o</span>
+        <div className="h-px flex-1 bg-gray-91" />
+      </div>
 
-      <form className="mt-4 flex flex-col gap-2.5" onSubmit={handleSubmit}>
+      <form onSubmit={(event) => void handleSubmit(event)} className="flex flex-col gap-4">
         {mode === "signup" && (
           <>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+            <TextField
+              label="Nombre"
               required
-              className={INPUT}
+              value={name}
+              onChange={setName}
             />
-            <input
-              type="text"
-              placeholder="Apellido (opcional)"
+            <TextField
+              label="Apellido"
+              required
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className={INPUT}
+              onChange={setLastName}
             />
           </>
         )}
-        {!(mode === "passwordless" && passwordlessTab === "sms") && (
-          <input
-            type="email"
-            placeholder="tu@correo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className={INPUT}
-          />
-        )}
-        {mode === "passwordless" && passwordlessTab === "sms" && (
-          <input
-            type="tel"
-            placeholder="+506 8888 8888"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-            pattern="^\+[1-9]\d{6,14}$"
-            className={INPUT}
-          />
-        )}
-        {mode === "signup" && (
-          <input
-            type="tel"
-            placeholder="Número de teléfono"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-            className={INPUT}
-          />
-        )}
-        {(mode === "login" || mode === "signup") && (
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className={INPUT}
-          />
-        )}
-        <button type="submit" disabled={busy} className={BTN_PRIMARY}>
-          {mode === "passwordless" && passwordlessTab === "email" && "Enviar enlace de acceso"}
-          {mode === "passwordless" && passwordlessTab === "sms" && "Enviar código"}
-          {mode === "login" && "Entrar"}
-          {mode === "signup" && "Registrarme"}
-          {mode === "forgot" && "Enviar enlace de recuperación"}
-        </button>
+        <TextField
+          label="Correo electrónico"
+          type="email"
+          required
+          value={email}
+          onChange={setEmail}
+        />
+        <TextField
+          label="Contraseña"
+          type="password"
+          required
+          value={password}
+          onChange={setPassword}
+        />
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <Button
+          type="submit"
+          variant="secondary"
+          handleClick={() => {}}
+          disabled={submitting}
+          className="w-full"
+        >
+          {submitting
+            ? "Cargando..."
+            : mode === "login"
+              ? "Iniciar sesión"
+              : "Crear cuenta"}
+        </Button>
       </form>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      {message && <p className="mt-3 text-sm text-orange-47">{message}</p>}
-
-      <div className="mt-4 flex flex-wrap gap-3">
-        {mode === "passwordless" && (
-          <button type="button" className={LINK_BTN} onClick={() => setMode("login")}>
-            Usar contraseña
-          </button>
-        )}
-        {mode !== "passwordless" && (
-          <button type="button" className={LINK_BTN} onClick={() => setMode("passwordless")}>
-            Acceder sin contraseña
-          </button>
-        )}
-        {mode !== "passwordless" && mode !== "login" && (
-          <button type="button" className={LINK_BTN} onClick={() => setMode("login")}>
-            Iniciar sesión
-          </button>
-        )}
-        {mode !== "passwordless" && mode !== "signup" && (
-          <button type="button" className={LINK_BTN} onClick={() => setMode("signup")}>
-            Crear cuenta
-          </button>
-        )}
-        {mode !== "passwordless" && mode !== "forgot" && (
-          <button type="button" className={LINK_BTN} onClick={() => setMode("forgot")}>
-            Olvidé mi contraseña
-          </button>
-        )}
-      </div>
-    </div>
-    {recaptchaContainer}
-    </>
+      <button
+        type="button"
+        onClick={handleModeSwitch}
+        className="cursor-pointer mt-4 w-full text-center text-sm text-orange-42 hover:text-orange-18"
+      >
+        {mode === "login"
+          ? "¿No tienes cuenta? Crear cuenta"
+          : "¿Ya tienes cuenta? Iniciar sesión"}
+      </button>
+    </Modal>
   );
 }

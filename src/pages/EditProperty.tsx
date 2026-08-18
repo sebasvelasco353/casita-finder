@@ -15,13 +15,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "../components/empty";
-import { useAuth } from "../firebase/auth";
 import {
   getPropertyById,
   updateProperty,
   type EditPropertyFormDataInterface,
 } from "../firebase/queries/properties";
 import type { Property } from "../types";
+import { useAuth } from "../providers/authFirebase";
 
 const bedroomOptions = [
   { label: "1", value: "1" },
@@ -93,7 +93,7 @@ export default function EditProperty() {
     enabled: !!id,
   });
 
-  const isOwner = !!user && !!property && property.ownerId === user.uid;
+  const isOwner = !!user && !!property && property.ownerId === user.id;
   const showLoading = isLoading || authLoading;
   const showNotFound = !isLoading && (isError || !property);
   const showForbidden = !isLoading && !authLoading && property && !isOwner;

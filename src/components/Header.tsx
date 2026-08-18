@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import Container from "./Container";
-import { useAuth } from "../firebase/auth";
+import { useAuth } from "../providers/authFirebase";
 import AuthModal from "./modals/AuthModal";
 
 export default function Header() {
@@ -18,15 +19,23 @@ export default function Header() {
           {/* <a className="py-1 px-3" href="/bodegas">
             Bodegaje
           </a> */}
-          {!loading && (
-            <button
-              type="button"
-              onClick={() => setIsAuthModalOpen(true)}
-              className="cursor-pointer py-1 px-3 text-sm text-orange-42 hover:text-orange-18"
-            >
-              {user ? (user.displayName ?? user.email) : "Iniciar sesión"}
-            </button>
-          )}
+          {!loading &&
+            (user ? (
+              <Link
+                to="/perfil"
+                className="py-1 px-3 text-sm text-orange-42 hover:text-orange-18"
+              >
+                {user.displayName ?? user.email}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="cursor-pointer py-1 px-3 text-sm text-orange-42 hover:text-orange-18"
+              >
+                Iniciar sesión
+              </button>
+            ))}
         </nav>
       </Container>
       <AuthModal

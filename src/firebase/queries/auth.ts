@@ -1,116 +1,94 @@
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  isSignInWithEmailLink,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
-  signInWithEmailLink,
-  signInWithPhoneNumber,
   signInWithPopup,
-  signOut,
   updateProfile,
-  type ConfirmationResult,
-  type RecaptchaVerifier,
-  type User,
 } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import type { User } from "../../types";
 import { auth, db } from "../config";
+import { getUserById } from "./users";
 
-const EMAIL_FOR_SIGN_IN_KEY = "emailForSignIn";
+type NewUser = Omit<User, "createdAt" | "updatedAt">;
+
+export const createUser = async (user: NewUser): Promise<void> => {
+  await setDoc(doc(db, "users", user.id), {
+    ...user,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const updateUser = async (
+  id: User["id"],
+  updates: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>,
+): Promise<void> => {
+  await updateDoc(doc(db, "users", id), {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const signInWithPassword = async (
+  email: string,
+  password: string,
+): Promise<void> => {
+  await signInWithEmailAndPassword(auth, email, password);
+};
 
 export interface SignUpDetails {
-  firstName: string;
-  lastName?: string;
-  phone: string;
+  name: string;
+  lastName: string;
+  phoneNumber?: string;
 }
 
-async function ensureUserProfile(user: User, details?: SignUpDetails) {
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      email: user.email,
-      displayName: user.displayName ?? null,
-      firstName: details?.firstName ?? null,
-      lastName: details?.lastName ?? null,
-      phone: details?.phone ?? null,
-      createdAt: serverTimestamp(),
-    });
-  }
-}
-
-export function subscribeToAuthState(callback: (user: User | null) => void) {
-  return onAuthStateChanged(auth, callback);
-}
-
-export function checkPendingEmailLink() {
-  if (!isSignInWithEmailLink(auth, window.location.href)) {
-    return { isEmailLink: false as const, storedEmail: null };
-  }
-  return {
-    isEmailLink: true as const,
-    storedEmail: window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY),
-  };
-}
-
-export async function signInWithGoogle() {
-  const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
-  await ensureUserProfile(user);
-}
-
-export async function signInWithPassword(email: string, password: string) {
-  await signInWithEmailAndPassword(auth, email, password);
-}
-
-export async function signUpWithPassword(
+export const signUpWithPassword = async (
   email: string,
   password: string,
   details: SignUpDetails,
-) {
-  const { user } = await createUserWithEmailAndPassword(auth, email, password);
-  const displayName = [details.firstName, details.lastName]
+): Promise<void> => {
+  const { user: firebaseUser } = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password,
+  );
+  const displayName = [details.name, details.lastName]
     .filter(Boolean)
     .join(" ");
-  await updateProfile(user, { displayName });
-  await ensureUserProfile(user, details);
-}
-
-export async function resetPassword(email: string) {
-  await sendPasswordResetEmail(auth, email);
-}
-
-export async function sendEmailLink(email: string) {
-  await sendSignInLinkToEmail(auth, email, {
-    url: window.location.origin + "/",
-    handleCodeInApp: true,
+  await updateProfile(firebaseUser, { displayName });
+  // ponytail: onAuthStateChanged can fire (and hydrate the provider) before this
+  // Firestore write lands, briefly showing a signed-in-but-no-profile state.
+  // Fix by refetching after createUser resolves if that gap ever bites.
+  await createUser({
+    id: firebaseUser.uid,
+    name: details.name,
+    lastName: details.lastName,
+    displayName,
+    email,
+    ...(details.phoneNumber ? { phoneNumber: details.phoneNumber } : {}),
   });
-  window.localStorage.setItem(EMAIL_FOR_SIGN_IN_KEY, email);
-}
+};
 
-export async function completeEmailLinkSignIn(email: string) {
-  const { user } = await signInWithEmailLink(auth, email, window.location.href);
-  window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
-  window.history.replaceState(null, "", window.location.pathname);
-  await ensureUserProfile(user);
-}
+export const signInWithGoogle = async (): Promise<void> => {
+  const { user: firebaseUser } = await signInWithPopup(
+    auth,
+    new GoogleAuthProvider(),
+  );
+  if (await getUserById(firebaseUser.uid)) return;
+  const [name = "", ...rest] = (firebaseUser.displayName ?? "").split(" ");
+  await createUser({
+    id: firebaseUser.uid,
+    name,
+    lastName: rest.join(" "),
+    displayName: firebaseUser.displayName ?? "",
+    email: firebaseUser.email ?? "",
+    ...(firebaseUser.phoneNumber
+      ? { phoneNumber: firebaseUser.phoneNumber }
+      : {}),
+  });
+};
 
-export async function sendPhoneCode(
-  phoneNumber: string,
-  verifier: RecaptchaVerifier,
-): Promise<ConfirmationResult> {
-  return signInWithPhoneNumber(auth, phoneNumber, verifier);
-}
-
-export async function confirmPhoneCode(
-  confirmationResult: ConfirmationResult,
-  code: string,
-) {
-  const { user } = await confirmationResult.confirm(code);
-  await ensureUserProfile(user);
-}
-
-export async function signOutUser() {
-  await signOut(auth);
-}
+export const logoutUser = async (): Promise<void> => {
+  await auth.signOut();
+};
