@@ -11,7 +11,9 @@ export default function Header() {
   return (
     <header className="bg-gray-98">
       <Container className="py-4 flex flex-row items-center justify-between">
-        <span className="logo font-black text-orange-47">Una Casita</span>
+        <a className="logo font-black text-orange-47" href="/">
+          Una Casita
+        </a>
         <nav className="flex items-center gap-2.5">
           <a className="py-1 px-3" href="/">
             Casitas
