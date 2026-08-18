@@ -1,4 +1,4 @@
-import { Button, Heading, Text } from "react-email";
+import {Button, Heading, Text} from "react-email";
 import Layout from "./components/Layout";
 import HouseCard from "./components/HouseCard";
 

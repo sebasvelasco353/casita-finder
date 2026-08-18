@@ -10,7 +10,7 @@ import {
   Text,
 } from "react-email";
 import EmailHeader from "./Header";
-import { emailTailwindConfig } from "../tailwind-config";
+import {emailTailwindConfig} from "../tailwind-config";
 
 interface LayoutProps {
   children: React.ReactNode;

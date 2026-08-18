@@ -8,6 +8,8 @@ import sharp from "sharp";
 initializeApp();
 setGlobalOptions({maxInstances: 10});
 
+export {sendHousePublishedEmail} from "./sendHousePublishedEmail";
+
 const MAX_DIMENSION = 1500;
 const QUALITY = 70;
 const UPLOAD_PATH = /^casas\/([^/]+)\/uploads\/(.+)$/;

@@ -19,7 +19,7 @@ module.exports = [
     "plugin:@typescript-eslint/recommended"
   ),
   {
-    files: ["**/*.ts"],
+    files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: require("@typescript-eslint/parser"),
       parserOptions: {
@@ -31,6 +31,16 @@ module.exports = [
       "quotes": ["error", "double"],
       "import/no-unresolved": 0,
       "indent": ["error", 2],
+    },
+  },
+  {
+    // Plantillas copiadas tal cual desde react-email-starter/emails - se
+    // eximen de max-len/require-jsdoc para que sigan siendo un diff nulo
+    // contra el original (más fácil re-sincronizar si el template cambia).
+    files: ["src/emails/**/*.ts", "src/emails/**/*.tsx"],
+    rules: {
+      "max-len": "off",
+      "require-jsdoc": "off",
     },
   },
 ];

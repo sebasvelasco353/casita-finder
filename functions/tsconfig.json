@@ -2,11 +2,13 @@
   "compilerOptions": {
     "module": "NodeNext",
     "esModuleInterop": true,
+    "jsx": "react-jsx",
     "moduleResolution": "nodenext",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
     "rootDir": "src",
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2017"
