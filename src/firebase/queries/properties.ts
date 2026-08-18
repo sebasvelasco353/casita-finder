@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getCountFromServer,
   getDoc,
@@ -232,4 +233,11 @@ export async function updateProperty(
     description: formData.description || "",
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteProperty(propertyId: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Debes iniciar sesión");
+
+  await deleteDoc(doc(db, "properties", propertyId));
 }
