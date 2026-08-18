@@ -13,7 +13,7 @@ export default function Header() {
       <Container className="py-4 flex flex-row items-center justify-between">
         <span className="logo font-black text-orange-47">Una Casita</span>
         <nav className="flex items-center gap-2.5">
-          <a className="py-1 px-3" href="/casitas">
+          <a className="py-1 px-3" href="/">
             Casitas
           </a>
           {/* <a className="py-1 px-3" href="/bodegas">
