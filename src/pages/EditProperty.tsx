@@ -27,6 +27,7 @@ import type { Property } from "../types";
 import { useAuth } from "../providers/authFirebase";
 import { useSyncPropertyDoc } from "../hooks/useSyncPropertyDoc";
 import { useDeleteProperty } from "../hooks/useDeleteProperty";
+import { cityOptions as cityFilterOptions } from "../utils/filters";
 
 const bedroomOptions = [
   { label: "1", value: "1" },
@@ -40,6 +41,8 @@ const parkingOptions = [
   { label: "Privado", value: "privado" },
   { label: "Sin parqueadero", value: "sin_parqueadero" },
 ];
+
+const cityOptions = cityFilterOptions.filter((option) => option.value);
 
 const zoneOptions = [
   { label: "Norte", value: "norte" },
@@ -250,11 +253,21 @@ function EditPropertyForm({ property }: { property: Property }) {
         />
       </div>
 
-      <Controller
-        name="city"
-        control={control}
-        render={({ field }) => <TextField label="Ciudad" {...field} />}
-      />
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium text-orange-18">Ciudad</span>
+        <Controller
+          name="city"
+          control={control}
+          render={({ field }) => (
+            <Dropdown
+              variant="field"
+              options={cityOptions}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium text-orange-18">Zona</span>
         <Controller

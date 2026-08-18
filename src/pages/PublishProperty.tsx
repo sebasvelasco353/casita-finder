@@ -22,6 +22,7 @@ import {
 import { createProperty } from "../firebase/queries/properties";
 import { uploadCasaImages } from "../firebase/queries/storage";
 import { useAuth } from "../providers/authFirebase";
+import { cityOptions as cityFilterOptions } from "../utils/filters";
 
 export interface PublishPropertyFormDataInterface {
   city: string;
@@ -65,6 +66,8 @@ const parkingOptions = [
   { label: "Privado", value: "privado" },
   { label: "Sin parqueadero", value: "sin_parqueadero" },
 ];
+
+const cityOptions = cityFilterOptions.filter((option) => option.value);
 
 const zoneOptions = [
   { label: "Norte", value: "norte" },
@@ -221,13 +224,22 @@ export default function PublishProperty() {
           </p>
 
           <StepHeader step={1} title="Localización" />
-          <Controller
-            name="city"
-            control={control}
-            render={({ field }) => (
-              <TextField label="Ciudad" placeholder="Cali" {...field} />
-            )}
-          />
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-orange-18">Ciudad</span>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Dropdown
+                  variant="field"
+                  options={cityOptions}
+                  placeholder="Cali"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-orange-18">Zona</span>
             <Controller

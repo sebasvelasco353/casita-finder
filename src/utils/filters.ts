@@ -9,10 +9,13 @@ export interface FiltersInterface {
 
 export const cityOptions = [
   { label: "Todas", value: "" },
-  { label: "Bogotá", value: "bogota" },
-  { label: "Medellín", value: "medellin" },
-  { label: "Cali", value: "cali" },
-  { label: "Armenia", value: "armenia" },
+  { label: "Cali", value: "Cali" },
+  { label: "Manizales", value: "Manizales" },
+  { label: "Pereira", value: "Pereira" },
+  { label: "Armenia", value: "Armenia" },
+  { label: "Buenaventura", value: "Buenaventura" },
+  { label: "Quibdó", value: "Quibdó" },
+  { label: "Istmina", value: "Istmina" },
 ];
 
 export const propertyTypeOptions = [
