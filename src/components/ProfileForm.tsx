@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import TextField from "./TextField";
 import Button from "./Button";
@@ -32,10 +32,6 @@ export default function ProfileForm({ user }: { user: User }) {
   async function submit(values: ProfileFormValuesInterface) {
     setError(null);
     try {
-      const phoneNumber = parsePhoneNumberFromString(
-        values.phoneNumber,
-        "CO",
-      )!.number;
       const displayName = [values.name, values.lastName]
         .filter(Boolean)
         .join(" ");
@@ -43,7 +39,7 @@ export default function ProfileForm({ user }: { user: User }) {
         name: values.name,
         lastName: values.lastName,
         displayName,
-        phoneNumber,
+        phoneNumber: values.phoneNumber,
       });
       await refreshUser();
       toast.success("Perfil actualizado.");
@@ -91,24 +87,25 @@ export default function ProfileForm({ user }: { user: User }) {
         control={control}
         rules={{
           required: "Ingresa tu número de teléfono.",
-          validate: (value) => {
-            const parsed = parsePhoneNumberFromString(value, "CO");
-            return (
-              (parsed?.isValid() && parsed.country === "CO") ||
-              "Ingresa un número de teléfono colombiano válido."
-            );
-          },
+          validate: (value) =>
+            isValidPhoneNumber(value) ||
+            "Ingresa un número de teléfono válido.",
         }}
         render={({ field }) => (
-          <TextField
-            label="Teléfono"
-            type="tel"
-            placeholder="+57 300 1234567"
-            value={field.value}
-            onChange={field.onChange}
-            className="sm:max-w-xs"
-            required
-          />
+          <label className="flex flex-col gap-1.5 sm:max-w-xs">
+            <span className="text-sm font-medium text-orange-18">
+              Teléfono <span className="text-orange-47">*</span>
+            </span>
+            <PhoneInput
+              defaultCountry="CO"
+              international
+              withCountryCallingCode
+              placeholder="300 1234567"
+              value={field.value}
+              onChange={(value) => field.onChange(value ?? "")}
+              className="phone-input-field"
+            />
+          </label>
         )}
       />
 

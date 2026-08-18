@@ -36,3 +36,4 @@ processed-photos-cache/
 
 # Datos exportados de los emuladores (se regeneran con --export-on-exit en npm run dev)
 emulator-data/
+

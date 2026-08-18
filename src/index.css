@@ -1,4 +1,22 @@
 @import "tailwindcss";
+@import "react-phone-number-input/style.css";
+
+.phone-input-field {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-91);
+  background: var(--color-gray-98);
+  padding: 0.5rem 1rem;
+}
+.phone-input-field:focus-within {
+  outline: 2px solid var(--color-orange-47);
+}
+.phone-input-field .PhoneInputInput {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: var(--color-orange-18);
+}
 
 @theme {
   --color-gray-99: #FFFDFB;
