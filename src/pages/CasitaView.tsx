@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -24,7 +24,12 @@ import {
   EmptyTitle,
 } from "../components/empty";
 import { getPropertyById } from "../firebase/queries/properties";
-import { formatDistance, formatParking, formatPrice, toDate } from "../utils/lib";
+import {
+  formatDistance,
+  formatParking,
+  formatPrice,
+  toDate,
+} from "../utils/lib";
 import {
   cityLabelByValue,
   propertyTypeLabelByValue,
@@ -33,6 +38,9 @@ import {
 import type { Property } from "../types";
 import { getStorageImageUrl } from "../firebase/queries/storage";
 import { getUserById } from "../firebase/queries/users";
+import { useAuth } from "../providers/authFirebase";
+import { useSyncPropertyDoc } from "../hooks/useSyncPropertyDoc";
+import { useDeleteProperty } from "../hooks/useDeleteProperty";
 
 const propertyTypeLabels: Record<Property["propertyType"], string> = {
   apartamento: "Apto.",
@@ -54,9 +62,11 @@ export default function CasitaView() {
     enabled: !!id,
   });
 
+  useSyncPropertyDoc(id);
+
   return (
     <Layout>
-      <Container className="items-start py-8">
+      <Container className="items-start py-8 flex-1 w-full">
         <a
           href="/"
           className="flex items-center gap-1 text-sm text-orange-42 mb-4"
@@ -120,12 +130,18 @@ function PropertyDetail({ property }: { property: Property }) {
     parking,
   } = property;
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { requestDelete, modal: deleteModal } = useDeleteProperty(property, () =>
+    navigate("/"),
+  );
+
   const cover = photos[0]
     ? getStorageImageUrl(`casas/${id}/images/${photos[0]}`)
     : null;
 
   const photoUrls = photos.map((photo) =>
-    getStorageImageUrl(`casas/${id}/images/${photo}`)
+    getStorageImageUrl(`casas/${id}/images/${photo}`),
   );
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -144,7 +160,27 @@ function PropertyDetail({ property }: { property: Property }) {
 
   return (
     <div className="w-full">
-      <h1 className="font-bold text-orange-18 text-3xl mb-4">{title}</h1>
+      <div className="w-full flex justify-between items-center gap-2 mb-4">
+        <h1 className="font-bold text-orange-18 text-3xl mb-4">{title}</h1>
+        {owner?.id === user?.id && (
+          <div className="flex items-center gap-4 shrink-0">
+            <a
+              href={`/property/${id}/edit`}
+              className="text-orange-47 text-sm font-semibold"
+            >
+              Editar casita
+            </a>
+            <button
+              type="button"
+              onClick={requestDelete}
+              className="cursor-pointer text-red-600 text-sm font-semibold"
+            >
+              Eliminar casita
+            </button>
+          </div>
+        )}
+      </div>
+      {deleteModal}
 
       <div
         className={`w-full aspect-video md:aspect-21/9 rounded-3xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50 ${cover ? "cursor-pointer" : ""}`}
@@ -166,10 +202,16 @@ function PropertyDetail({ property }: { property: Property }) {
             <div
               key={gridIndex}
               className={`aspect-square rounded-2xl bg-gray-91 overflow-hidden flex items-center justify-center text-orange-42/50 ${photoUrl ? "cursor-pointer" : ""}`}
-              onClick={photoUrl ? () => setLightboxIndex(photoIndex) : undefined}
+              onClick={
+                photoUrl ? () => setLightboxIndex(photoIndex) : undefined
+              }
             >
               {photoUrl ? (
-                <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={photoUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <HouseIcon className="w-6 h-6" />
               )}

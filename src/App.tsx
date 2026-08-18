@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import CasitaView from "./pages/CasitaView";
 import EditProperty from "./pages/EditProperty";
+import PublishProperty from "./pages/PublishProperty";
 import Profile from "./pages/Profile";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
@@ -33,6 +34,7 @@ function App() {
           <Toaster richColors position="top-center" />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/property/new" element={<PublishProperty />} />
             <Route path="/property/:id/view" element={<CasitaView />} />
             <Route path="/property/:id/edit" element={<EditProperty />} />
             <Route path="/perfil" element={<Profile />} />

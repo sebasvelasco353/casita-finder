@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import type { Property } from "../../types";
 import {
   deleteProperty,
@@ -9,14 +10,13 @@ import SettingsSection from "../../components/SettingsSection";
 import PropertyOwnerCard from "../../components/PropertyOwnerCard";
 import Button from "../../components/Button";
 import { HomeIcon } from "lucide-react";
-import PublishPropertyModal from "../../components/modals/PublishPropertyModal";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import { cityLabelByValue, zoneLabelByValue } from "../../utils/filters";
 import { toast } from "sonner";
 
 function MyPropertiesTab({ ownerId }: { ownerId: string }) {
   const queryClient = useQueryClient();
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [propertyPendingDelete, setPropertyPendingDelete] =
     useState<Property | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -32,7 +32,11 @@ function MyPropertiesTab({ ownerId }: { ownerId: string }) {
     setDeleteError(null);
     try {
       await deleteProperty(propertyPendingDelete.id);
-      await queryClient.invalidateQueries({
+      // removeQueries, no invalidate: la propiedad ya no existe, así que un
+      // refetch de ["property", id] volvería undefined si esa query está
+      // montada en otra pantalla (CasitaView/EditProperty), y React Query no
+      // permite que un queryFn devuelva undefined.
+      queryClient.removeQueries({
         queryKey: ["property", propertyPendingDelete.id],
       });
       await queryClient.invalidateQueries({ queryKey: ["properties"] });
@@ -80,16 +84,11 @@ function MyPropertiesTab({ ownerId }: { ownerId: string }) {
         <Button
           variant="secondary"
           className="self-start mx-auto"
-          handleClick={() => setIsPublishModalOpen(true)}
+          handleClick={() => navigate("/property/new")}
         >
           <HomeIcon className="w-4 h-4 mr-2" />
           Publicar casita
         </Button>
-
-        <PublishPropertyModal
-          isOpen={isPublishModalOpen}
-          onClose={() => setIsPublishModalOpen(false)}
-        />
 
         <ConfirmModal
           isOpen={!!propertyPendingDelete}

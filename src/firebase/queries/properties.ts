@@ -21,7 +21,7 @@ import {
 import { auth, db } from "../config";
 import type { Filters, Property } from "../../types";
 import type { FiltersInterface } from "../../utils/filters";
-import type { PublishPropertyFormDataInterface } from "../../components/modals/PublishPropertyModal";
+import type { PublishPropertyFormDataInterface } from "../../pages/PublishProperty";
 import { toDate } from "../../utils/lib";
 
 const PAGE_SIZE = 12;
@@ -133,14 +133,10 @@ function toParking(
   return { type, spots: Number(spots) || null };
 }
 
-function toContactNumber(formData: PublishPropertyFormDataInterface) {
-  return `${formData.countryCode}${formData.phoneNumber}`.replace(
-    /[^\d+]/g,
-    "",
-  );
-}
-
-function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
+function toPropertyDoc(
+  formData: PublishPropertyFormDataInterface,
+  contactNumber: string,
+) {
   return {
     available: true,
     propertyType: formData.propertyType as Property["propertyType"],
@@ -154,7 +150,7 @@ function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
     petsAllowed: formData.petsAllowed,
     parking: toParking(formData.parkingType, formData.parkingSpots),
     description: formData.description || "",
-    contact_number: toContactNumber(formData),
+    contact_number: contactNumber,
     photos: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -163,15 +159,15 @@ function toPropertyDoc(formData: PublishPropertyFormDataInterface) {
 
 export async function createProperty(
   formData: PublishPropertyFormDataInterface,
+  contactNumber: string,
 ) {
   const user = auth.currentUser;
   if (!user) throw new Error("Debes iniciar sesión");
 
-  // TODO: Add images
   const propertyRef = doc(collection(db, "properties"));
   await setDoc(propertyRef, {
     ownerId: user.uid,
-    ...toPropertyDoc(formData),
+    ...toPropertyDoc(formData, contactNumber),
   });
 
   return propertyRef.id;

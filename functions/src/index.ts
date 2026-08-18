@@ -40,17 +40,10 @@ export const processCasaImage = onObjectFinalized(async (event) => {
     contentType: "image/webp",
   });
 
-  const storageHost =
-    process.env.STORAGE_EMULATOR_HOST ??
-    "https://firebasestorage.googleapis.com";
-  const encodedPath = encodeURIComponent(outputPath);
-  const publicUrl =
-    `${storageHost}/v0/b/${event.data.bucket}/o/${encodedPath}?alt=media`;
-
   await getFirestore()
-    .collection("casas")
+    .collection("properties")
     .doc(casaId)
-    .update({images: FieldValue.arrayUnion(publicUrl)});
+    .update({photos: FieldValue.arrayUnion(`${baseName}.webp`)});
 
   await originalFile.delete();
 });

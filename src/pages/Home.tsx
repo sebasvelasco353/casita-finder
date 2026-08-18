@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import type { Timestamp } from "firebase/firestore";
 import Button from "../components/Button";
 import Container from "../components/Container";
@@ -9,8 +11,9 @@ import Pill from "../components/Pill";
 import PropertyCard from "../components/PropertyCard";
 import casitaIcon from "../assets/casita_icon.svg";
 import searchIcon from "../assets/search_icon.svg";
-import PublishPropertyModal from "../components/modals/PublishPropertyModal";
+import AuthModal from "../components/modals/AuthModal";
 import Layout from "../components/Layout";
+import { useAuth } from "../providers/authFirebase";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getNewPropertiesCount,
@@ -27,8 +30,19 @@ import {
 import { LoaderIcon, TriangleAlert } from "lucide-react";
 
 function Home() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [filters, setFilters] = useState<FiltersInterface>({});
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  function handlePublishClick() {
+    if (!user) {
+      toast("Debes iniciar sesión para ofrecer una casita.");
+      setIsAuthModalOpen(true);
+      return;
+    }
+    navigate("/property/new");
+  }
 
   function handleFilterChange(key: keyof FiltersInterface, value: string) {
     setFilters((current) => {
@@ -102,7 +116,7 @@ function Home() {
             espacio disponible con quienes buscan dónde vivir.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-2.5 mt-5">
-            <Button handleClick={() => setIsPublishModalOpen(true)}>
+            <Button handleClick={handlePublishClick}>
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
             </Button>
@@ -129,7 +143,7 @@ function Home() {
             </div>
             <Button
               className="max-w-52 mt-2.5 md:mt-0"
-              handleClick={() => setIsPublishModalOpen(true)}
+              handleClick={handlePublishClick}
             >
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
@@ -176,9 +190,9 @@ function Home() {
         </Container>
       </section>
 
-      <PublishPropertyModal
-        isOpen={isPublishModalOpen}
-        onClose={() => setIsPublishModalOpen(false)}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </Layout>
   );
