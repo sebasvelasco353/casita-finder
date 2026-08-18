@@ -14,7 +14,11 @@ import searchIcon from "../assets/search_icon.svg";
 import AuthModal from "../components/modals/AuthModal";
 import Layout from "../components/Layout";
 import { useAuth } from "../providers/authFirebase";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   getNewPropertiesCount,
   getPaginatedProperties,
@@ -83,7 +87,8 @@ function Home() {
     const items = data?.pages.flatMap((page) => page.items) ?? [];
     if (!items.length) return;
     latestSeenRef.current = items.reduce(
-      (max, item) => (item.updatedAt && item.updatedAt > max ? item.updatedAt : max),
+      (max, item) =>
+        item.updatedAt && item.updatedAt > max ? item.updatedAt : max,
       items[0].updatedAt,
     );
   }, [data]);
@@ -101,7 +106,9 @@ function Home() {
   async function handleRefresh() {
     queryClient.setQueryData(["properties-new-count", filters], 0);
     await queryClient.invalidateQueries({ queryKey: ["properties", filters] });
-    await queryClient.invalidateQueries({ queryKey: ["properties-count", filters] });
+    await queryClient.invalidateQueries({
+      queryKey: ["properties-count", filters],
+    });
   }
 
   return (
@@ -120,13 +127,13 @@ function Home() {
               <img src={casitaIcon} alt="" className="w-4 h-4" />
               Ofrecer una casita
             </Button>
-            <Button
+            {/* <Button
               variant="secondary"
               handleClick={() => console.log("click")}
             >
               <img src={searchIcon} alt="" className="w-4 h-4" />
               Quiero una casita
-            </Button>
+            </Button> */}
           </div>
         </Container>
       </section>
