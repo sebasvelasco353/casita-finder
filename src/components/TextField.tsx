@@ -8,6 +8,7 @@ interface TextFieldPropsInterface {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  autoComplete?: string;
 }
 
 export default function TextField({
@@ -20,6 +21,7 @@ export default function TextField({
   value,
   onChange,
   className = "",
+  autoComplete,
 }: TextFieldPropsInterface) {
   const fieldClassName =
     "w-full rounded-lg border border-gray-91 bg-gray-98 px-4 py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2 focus:ring-orange-47";
@@ -36,6 +38,7 @@ export default function TextField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           rows={4}
+          autoComplete={autoComplete}
           className={fieldClassName}
         />
       ) : (
@@ -45,6 +48,7 @@ export default function TextField({
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          autoComplete={autoComplete}
           className={fieldClassName}
         />
       )}

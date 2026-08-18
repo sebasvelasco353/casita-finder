@@ -43,14 +43,14 @@ export default function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-orange-18/40"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-orange-18/40 motion-safe:animate-[fade-in_0.15s_ease-out]"
       onClick={closeOnBackdropClick ? onClose : undefined}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
-        className={`w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-gray-99 p-6 shadow-lg ${className}`.trim()}
+        className={`w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-gray-99 p-6 shadow-lg motion-safe:animate-[fade-in-up_0.2s_ease-out] ${className}`.trim()}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 mb-4">
