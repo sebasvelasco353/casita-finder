@@ -5,6 +5,8 @@ interface TextFieldPropsInterface {
   required?: boolean;
   placeholder?: string;
   helperText?: string;
+  error?: boolean;
+  errorMessage?: string;
   value: string;
   onChange: (value: string) => void;
   className?: string;
@@ -18,13 +20,18 @@ export default function TextField({
   required = false,
   placeholder,
   helperText,
+  error = false,
+  errorMessage,
   value,
   onChange,
   className = "",
   autoComplete,
 }: TextFieldPropsInterface) {
-  const fieldClassName =
-    "w-full rounded-lg border border-gray-91 bg-gray-98 px-4 py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2 focus:ring-orange-47";
+  const borderClassName = error
+    ? "border-red-500 ring-1 ring-red-500 focus:ring-red-500"
+    : "border-gray-91 focus:ring-orange-47";
+
+  const fieldClassName = `w-full rounded-lg border ${borderClassName} bg-gray-98 px-4 py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2`;
 
   return (
     <label className={`flex flex-col gap-1.5 ${className}`.trim()}>
@@ -52,7 +59,11 @@ export default function TextField({
           className={fieldClassName}
         />
       )}
-      {helperText && <span className="text-xs text-orange-42">{helperText}</span>}
+      {errorMessage ? (
+        <span className="text-xs text-red-600">{errorMessage}</span>
+      ) : helperText ? (
+        <span className="text-xs text-orange-42">{helperText}</span>
+      ) : null}
     </label>
   );
 }
