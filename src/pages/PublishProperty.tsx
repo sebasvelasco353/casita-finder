@@ -23,6 +23,7 @@ import { createProperty } from "../firebase/queries/properties";
 import { uploadCasaImages } from "../firebase/queries/storage";
 import { useAuth } from "../providers/authFirebase";
 import { cityOptions as cityFilterOptions } from "../utils/filters";
+import { formatNumberWithDots } from "../utils/lib";
 
 export interface PublishPropertyFormDataInterface {
   city: string;
@@ -40,7 +41,7 @@ export interface PublishPropertyFormDataInterface {
 }
 
 const defaultValues: PublishPropertyFormDataInterface = {
-  city: "",
+  city: "Cali",
   zone: "",
   neighborhood: "",
   propertyType: "",
@@ -137,6 +138,10 @@ export default function PublishProperty() {
 
   const parkingType = watch("parkingType");
 
+  function onInvalid() {
+    toast.error("Te faltan campos por llenar.");
+  }
+
   async function submit(formData: PublishPropertyFormDataInterface) {
     setPublishError(null);
     if (!user?.phoneNumber) {
@@ -212,7 +217,7 @@ export default function PublishProperty() {
         </a>
 
         <form
-          onSubmit={(event) => void handleSubmit(submit)(event)}
+          onSubmit={(event) => void handleSubmit(submit, onInvalid)(event)}
           className="w-full max-w-lg flex flex-col gap-4"
         >
           <h1 className="font-bold text-orange-18 text-2xl">
@@ -225,33 +230,43 @@ export default function PublishProperty() {
 
           <StepHeader step={1} title="Localización" />
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-orange-18">Ciudad</span>
+            <span className="text-sm font-medium text-orange-18">
+              Ciudad <span className="text-orange-47">*</span>
+            </span>
             <Controller
               name="city"
               control={control}
-              render={({ field }) => (
+              rules={{ required: "Selecciona una ciudad" }}
+              render={({ field, fieldState: { error } }) => (
                 <Dropdown
                   variant="field"
                   options={cityOptions}
-                  placeholder="Cali"
+                  placeholder="Selecciona una ciudad"
                   value={field.value}
                   onChange={field.onChange}
+                  error={!!error}
+                  errorMessage={error?.message}
                 />
               )}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-orange-18">Zona</span>
+            <span className="text-sm font-medium text-orange-18">
+              Zona <span className="text-orange-47">*</span>
+            </span>
             <Controller
               name="zone"
               control={control}
-              render={({ field }) => (
+              rules={{ required: "Selecciona una zona" }}
+              render={({ field, fieldState: { error } }) => (
                 <Dropdown
                   variant="field"
                   options={zoneOptions}
-                  placeholder="Norte"
+                  placeholder="Selecciona una zona"
                   value={field.value}
                   onChange={field.onChange}
+                  error={!!error}
+                  errorMessage={error?.message}
                 />
               )}
             />
@@ -269,18 +284,21 @@ export default function PublishProperty() {
           <StepHeader step={2} title="Inmueble" />
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-orange-18">
-              Tipo de lugar
+              Tipo de lugar <span className="text-orange-47">*</span>
             </span>
             <Controller
               name="propertyType"
               control={control}
-              render={({ field }) => (
+              rules={{ required: "Selecciona el tipo de inmueble" }}
+              render={({ field, fieldState: { error } }) => (
                 <Dropdown
                   variant="field"
                   options={propertyTypeOptions}
-                  placeholder="Apartamento"
+                  placeholder="Selecciona el tipo de inmueble"
                   value={field.value}
                   onChange={field.onChange}
+                  error={!!error}
+                  errorMessage={error?.message}
                 />
               )}
             />
@@ -295,8 +313,33 @@ export default function PublishProperty() {
           <Controller
             name="price"
             control={control}
-            render={({ field }) => (
-              <TextField label="Precio (opcional)" {...field} />
+            rules={{
+              required: "Ingresa el precio del inmueble",
+              validate: (val) => {
+                const num = Number(val);
+                if (isNaN(num) || num < 0) {
+                  return "Ingresa un precio válido";
+                }
+                return true;
+              },
+            }}
+            render={({ field, fieldState: { error } }) => (
+              <TextField
+                label="Precio"
+                required
+                type="text"
+                inputMode="numeric"
+                prefix="$"
+                suffix="COP"
+                placeholder="Ej: 1.000.000"
+                value={formatNumberWithDots(field.value)}
+                onChange={(val) => {
+                  const raw = val.replace(/\D/g, "");
+                  field.onChange(raw);
+                }}
+                error={!!error}
+                errorMessage={error?.message}
+              />
             )}
           />
           <div className="flex flex-col gap-1.5">

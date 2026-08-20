@@ -30,6 +30,12 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
+export function formatNumberWithDots(val: string | number): string {
+  const digits = String(val ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  return new Intl.NumberFormat("es-CO").format(Number(digits));
+}
+
 export function formatParking(parking: Property["parking"]): string | null {
   if (!parking || parking.type === "sin_parqueadero") return null;
   const typeLabel = parking.type === "publico" ? "público" : "privado";

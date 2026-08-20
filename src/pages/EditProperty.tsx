@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
 import { ChevronLeft, LoaderIcon, TriangleAlert } from "lucide-react";
 import Layout from "../components/Layout";
 import Container from "../components/Container";
@@ -28,6 +29,7 @@ import { useAuth } from "../providers/authFirebase";
 import { useSyncPropertyDoc } from "../hooks/useSyncPropertyDoc";
 import { useDeleteProperty } from "../hooks/useDeleteProperty";
 import { cityOptions as cityFilterOptions } from "../utils/filters";
+import { formatNumberWithDots } from "../utils/lib";
 
 const bedroomOptions = [
   { label: "1", value: "1" },
@@ -208,6 +210,10 @@ function EditPropertyForm({ property }: { property: Property }) {
     );
   }
 
+  function onInvalid() {
+    toast.error("Te faltan campos por llenar.");
+  }
+
   async function submit(formData: EditPropertyFormDataInterface) {
     setSaveError(null);
     try {
@@ -233,7 +239,7 @@ function EditPropertyForm({ property }: { property: Property }) {
 
   return (
     <form
-      onSubmit={(event) => void handleSubmit(submit)(event)}
+      onSubmit={(event) => void handleSubmit(submit, onInvalid)(event)}
       className="w-full max-w-lg flex flex-col gap-4"
     >
       <h1 className="font-bold text-orange-18 text-2xl">Editar casita</h1>
@@ -254,31 +260,43 @@ function EditPropertyForm({ property }: { property: Property }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-orange-18">Ciudad</span>
+        <span className="text-sm font-medium text-orange-18">
+          Ciudad <span className="text-orange-47">*</span>
+        </span>
         <Controller
           name="city"
           control={control}
-          render={({ field }) => (
+          rules={{ required: "Selecciona una ciudad" }}
+          render={({ field, fieldState: { error } }) => (
             <Dropdown
               variant="field"
               options={cityOptions}
+              placeholder="Selecciona una ciudad"
               value={field.value}
               onChange={field.onChange}
+              error={!!error}
+              errorMessage={error?.message}
             />
           )}
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-orange-18">Zona</span>
+        <span className="text-sm font-medium text-orange-18">
+          Zona <span className="text-orange-47">*</span>
+        </span>
         <Controller
           name="zone"
           control={control}
-          render={({ field }) => (
+          rules={{ required: "Selecciona una zona" }}
+          render={({ field, fieldState: { error } }) => (
             <Dropdown
               variant="field"
               options={zoneOptions}
+              placeholder="Selecciona una zona"
               value={field.value}
               onChange={field.onChange}
+              error={!!error}
+              errorMessage={error?.message}
             />
           )}
         />
@@ -293,17 +311,21 @@ function EditPropertyForm({ property }: { property: Property }) {
 
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium text-orange-18">
-          Tipo de lugar
+          Tipo de lugar <span className="text-orange-47">*</span>
         </span>
         <Controller
           name="propertyType"
           control={control}
-          render={({ field }) => (
+          rules={{ required: "Selecciona el tipo de inmueble" }}
+          render={({ field, fieldState: { error } }) => (
             <Dropdown
               variant="field"
               options={propertyTypeOptions}
+              placeholder="Selecciona el tipo de inmueble"
               value={field.value}
               onChange={field.onChange}
+              error={!!error}
+              errorMessage={error?.message}
             />
           )}
         />
@@ -316,7 +338,34 @@ function EditPropertyForm({ property }: { property: Property }) {
       <Controller
         name="price"
         control={control}
-        render={({ field }) => <TextField label="Precio" {...field} />}
+        rules={{
+          required: "Ingresa el precio del inmueble",
+          validate: (val) => {
+            const num = Number(val);
+            if (isNaN(num) || num < 0) {
+              return "Ingresa un precio válido";
+            }
+            return true;
+          },
+        }}
+        render={({ field, fieldState: { error } }) => (
+          <TextField
+            label="Precio"
+            required
+            type="text"
+            inputMode="numeric"
+            prefix="$"
+            suffix="COP"
+            placeholder="Ej: 1.000.000"
+            value={formatNumberWithDots(field.value)}
+            onChange={(val) => {
+              const raw = val.replace(/\D/g, "");
+              field.onChange(raw);
+            }}
+            error={!!error}
+            errorMessage={error?.message}
+          />
+        )}
       />
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium text-orange-18">Habitaciones</span>
