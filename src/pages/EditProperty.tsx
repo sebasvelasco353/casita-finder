@@ -29,6 +29,7 @@ import { useAuth } from "../providers/authFirebase";
 import { useSyncPropertyDoc } from "../hooks/useSyncPropertyDoc";
 import { useDeleteProperty } from "../hooks/useDeleteProperty";
 import { cityOptions as cityFilterOptions } from "../utils/filters";
+import { formatNumberWithDots } from "../utils/lib";
 
 const bedroomOptions = [
   { label: "1", value: "1" },
@@ -341,7 +342,7 @@ function EditPropertyForm({ property }: { property: Property }) {
           required: "Ingresa el precio del inmueble",
           validate: (val) => {
             const num = Number(val);
-            if (isNaN(num) || num <= 0) {
+            if (isNaN(num) || num < 0) {
               return "Ingresa un precio válido";
             }
             return true;
@@ -351,11 +352,18 @@ function EditPropertyForm({ property }: { property: Property }) {
           <TextField
             label="Precio"
             required
-            type="number"
-            placeholder="Ej: 100000"
+            type="text"
+            inputMode="numeric"
+            prefix="$"
+            suffix="COP"
+            placeholder="Ej: 1.000.000"
+            value={formatNumberWithDots(field.value)}
+            onChange={(val) => {
+              const raw = val.replace(/\D/g, "");
+              field.onChange(raw);
+            }}
             error={!!error}
             errorMessage={error?.message}
-            {...field}
           />
         )}
       />

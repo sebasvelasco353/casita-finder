@@ -1,7 +1,12 @@
+import type { ReactNode } from "react";
+
 interface TextFieldPropsInterface {
   label: string;
   as?: "input" | "textarea";
   type?: string;
+  inputMode?: "text" | "numeric";
+  prefix?: ReactNode;
+  suffix?: ReactNode;
   required?: boolean;
   placeholder?: string;
   helperText?: string;
@@ -17,6 +22,9 @@ export default function TextField({
   label,
   as = "input",
   type = "text",
+  inputMode = "text",
+  prefix,
+  suffix,
   required = false,
   placeholder,
   helperText,
@@ -33,6 +41,10 @@ export default function TextField({
 
   const fieldClassName = `w-full rounded-lg border ${borderClassName} bg-gray-98 px-4 py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2`;
 
+  const hasAdornments = Boolean(prefix || suffix);
+  const paddingClassName = `${prefix ? "pl-8" : "pl-4"} ${suffix ? "pr-14" : "pr-4"}`;
+  const inputClassName = `w-full rounded-lg border ${borderClassName} bg-gray-98 ${paddingClassName} py-2.5 text-sm text-orange-18 placeholder:text-orange-42/60 focus:outline-none focus:ring-2`;
+
   return (
     <label className={`flex flex-col gap-1.5 ${className}`.trim()}>
       <span className="text-sm font-medium text-orange-18">
@@ -48,9 +60,33 @@ export default function TextField({
           autoComplete={autoComplete}
           className={fieldClassName}
         />
+      ) : hasAdornments ? (
+        <div className="relative flex items-center w-full">
+          {prefix && (
+            <span className="pointer-events-none absolute left-3 text-sm font-medium text-orange-42 select-none">
+              {prefix}
+            </span>
+          )}
+          <input
+            type={type}
+            inputMode={inputMode}
+            required={required}
+            placeholder={placeholder}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            autoComplete={autoComplete}
+            className={inputClassName}
+          />
+          {suffix && (
+            <span className="pointer-events-none absolute right-3 text-xs font-semibold text-orange-42 select-none">
+              {suffix}
+            </span>
+          )}
+        </div>
       ) : (
         <input
           type={type}
+          inputMode={inputMode}
           required={required}
           placeholder={placeholder}
           value={value}
