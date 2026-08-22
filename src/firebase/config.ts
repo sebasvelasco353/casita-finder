@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import {
   connectFirestoreEmulator,
@@ -25,6 +26,14 @@ export const db = initializeFirestore(app, {
   }),
 });
 export const storage = getStorage(app);
+
+export let analytics: ReturnType<typeof getAnalytics> | undefined;
+
+if (!import.meta.env.DEV) {
+  isSupported().then((supported) => {
+    if (supported) analytics = getAnalytics(app);
+  });
+}
 
 if (import.meta.env.DEV) {
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
