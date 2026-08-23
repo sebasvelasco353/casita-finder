@@ -24,6 +24,10 @@ export type Property = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
   description?: string | null;
+  lastAvailabilityCheckAt?: Timestamp;
+  lastAvailabilityConfirmedAt?: Timestamp;
+  availabilityReminderCount?: number;
+  autoPausedAt?: Timestamp;
 };
 
 export type Filters = {

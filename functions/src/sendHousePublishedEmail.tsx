@@ -1,71 +1,19 @@
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
-import {defineSecret} from "firebase-functions/params";
 import {getFirestore} from "firebase-admin/firestore";
 import {render} from "react-email";
 import {Resend} from "resend";
 import {HousePublishedEmail} from "./emails/house-published";
+import {
+  RESEND_API_KEY,
+  FROM_ADDRESS,
+  APP_BASE_URL,
+  TEST_ADDRESS,
+  formatHouseName,
+  formatPrice,
+  toPublicImageUrl,
+} from "./utils";
 
-export const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
-
-const FROM_ADDRESS = "notificaciones@unacasitacolombia.com";
-const APP_BASE_URL = "https://unacasitacolombia.com";
-// Mismo bucket que VITE_FIREBASE_STORAGE_BUCKET en el cliente (.env). Fijo
-// en vez de leerlo de getStorage().bucket() porque ese default solo se
-// resuelve bien dentro de una invocación real de function (vía
-// FIREBASE_CONFIG); no hay necesidad de esa indirección para un valor que
-// no cambia.
-const STORAGE_BUCKET = "una-casita.firebasestorage.app";
-// ponytail: dirección de pruebas de Resend, siempre "entregada" sin tocar
-// bandejas reales - evita espamear usuarios de seed/emulador.
-const TEST_ADDRESS = "delivered@resend.dev";
-
-const propertyTypeLabels: Record<string, string> = {
-  casa: "Casa",
-  apartamento: "Apartamento",
-  habitacion: "Habitación",
-  bodega: "Bodega",
-};
-
-const zoneLabels: Record<string, string> = {
-  norte: "Norte",
-  sur: "Sur",
-  centro: "Centro",
-  oriente: "Oriente",
-  occidente: "Occidente",
-};
-
-/**
- * Convierte un nombre de archivo en `photos[]` a la URL pública de descarga
- * en Storage. Espejo del `getStorageImageUrl` del cliente
- * (src/firebase/queries/storage.ts) — un correo no tiene JS que arme esto
- * en el navegador, así que hay que mandarlo ya resuelto.
- * @param {string} propertyId Id de la property dueña de la foto.
- * @param {string} fileName Nombre del archivo dentro de casas/{id}/images/.
- * @return {string} URL pública lista para usar en un <img src>.
- */
-function toPublicImageUrl(propertyId: string, fileName: string): string {
-  const path = `casas/${propertyId}/images/${fileName}`;
-  const base =
-    process.env.FUNCTIONS_EMULATOR === "true" ?
-      "http://localhost:9199" :
-      "https://firebasestorage.googleapis.com";
-  const encodedPath = encodeURIComponent(path);
-  return `${base}/v0/b/${STORAGE_BUCKET}/o/${encodedPath}?alt=media`;
-}
-
-/**
- * Formatea un precio en pesos colombianos, ej. "$ 1.200.000".
- * @param {number} price Precio crudo en COP.
- * @return {string} Precio formateado.
- */
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
-}
+export {RESEND_API_KEY};
 
 /**
  * Construye y envía el email "casita publicada" para una property dada.
@@ -87,10 +35,7 @@ export async function sendHousePublishedEmailFor(
   const owner = ownerSnap.data();
   if (!owner?.email) return;
 
-  const type =
-    propertyTypeLabels[property.propertyType] ?? property.propertyType;
-  const zone = zoneLabels[property.zone] ?? property.zone;
-  const houseName = `${type} en ${zone}`;
+  const houseName = formatHouseName(property.propertyType, property.zone);
 
   const html = await render(
     <HousePublishedEmail
