@@ -63,7 +63,7 @@ export default HousePublishedEmail;
 const Footer = () => {
   return (
     <Text className="text-xs text-pretty text-mutedForeground">
-      Te enviaremos un recordatorio cada 3 días para que nos confirmes que tu
+      Te enviaremos un recordatorio cada 7 días para que nos confirmes que tu
       anuncio sigue activo y visible para las familias que buscan dónde vivir.
     </Text>
   );

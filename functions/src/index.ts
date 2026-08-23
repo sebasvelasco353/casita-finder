@@ -14,6 +14,8 @@ initializeApp();
 setGlobalOptions({maxInstances: 10});
 
 export {sendHousePublishedEmail} from "./sendHousePublishedEmail";
+export {checkPropertyAvailability} from "./checkPropertyAvailability";
+export {confirmAvailability} from "./confirmAvailability";
 
 const MAX_DIMENSION = 1500;
 const QUALITY = 70;
