@@ -361,6 +361,9 @@ export const checkPropertyAvailability = onSchedule(
     schedule: "0 9 * * *",
     timeZone: "America/Bogota",
     secrets: [RESEND_API_KEY],
+    timeoutSeconds: 540, // ponytail: procesamiento secuencial; si el número
+    // de properties activas crece mucho más, paralelizar en lotes en vez de
+    // seguir subiendo el timeout.
   },
   async () => {
     const db = getFirestore();
