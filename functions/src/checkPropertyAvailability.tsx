@@ -268,6 +268,15 @@ async function markPropertyCheckedWithoutEmail(
   );
 }
 
+type AvailabilityCheckOutcome =
+  | "not-due"
+  | "no-owner-id"
+  | "no-owner"
+  | "no-email"
+  | "reminder-sent"
+  | "auto-paused"
+  | "error";
+
 /**
  * Processes availability verification for a single property document.
  * Checks eligibility, resolves owner information, and dispatches either
@@ -278,7 +287,7 @@ async function markPropertyCheckedWithoutEmail(
  * @param {string} resendApiKey Resend API key used for signed URLs.
  * @param {number} cutoffTimestampMs Cutoff timestamp for limit-day checks.
  * @param {boolean} isEmulator Whether the function is running in an emulator.
- * @return {Promise<void>}
+ * @return {Promise<AvailabilityCheckOutcome>} What happened to this property.
  */
 async function processSinglePropertyAvailability(
   doc: QueryDocumentSnapshot<DocumentData>,
@@ -287,7 +296,7 @@ async function processSinglePropertyAvailability(
   resendApiKey: string,
   cutoffTimestampMs: number,
   isEmulator: boolean,
-): Promise<void> {
+): Promise<AvailabilityCheckOutcome> {
   const property = doc.data();
   const propertyId = doc.id;
 
@@ -296,19 +305,19 @@ async function processSinglePropertyAvailability(
       property,
       cutoffTimestampMs,
     );
-    if (!isDue) return;
+    if (!isDue) return "not-due";
 
-    if (!property.ownerId) return;
+    if (!property.ownerId) return "no-owner-id";
 
     const owner = await fetchPropertyOwnerDetails(db, property.ownerId);
-    if (!owner) return;
+    if (!owner) return "no-owner";
 
     const reminderCount = property.availabilityReminderCount ?? 0;
 
     const recipientEmail = resolveRecipientEmailAddress(owner, isEmulator);
     if (!recipientEmail) {
       await markPropertyCheckedWithoutEmail(doc.ref, propertyId, reminderCount);
-      return;
+      return "no-email";
     }
 
     const emailDetails = buildPropertyEmailDetails(
@@ -326,6 +335,7 @@ async function processSinglePropertyAvailability(
         resend,
         reminderCount,
       );
+      return "auto-paused";
     } else {
       await sendAvailabilityCheckReminderEmail(
         doc.ref,
@@ -336,12 +346,14 @@ async function processSinglePropertyAvailability(
         resendApiKey,
         reminderCount,
       );
+      return "reminder-sent";
     }
   } catch (err) {
     console.error(
       `checkPropertyAvailability: Error on property ${propertyId}:`,
       err,
     );
+    return "error";
   }
 }
 
@@ -367,8 +379,18 @@ async function processAllActivePropertiesAvailability(
     return;
   }
 
+  const outcomes: Record<AvailabilityCheckOutcome, number> = {
+    "not-due": 0,
+    "no-owner-id": 0,
+    "no-owner": 0,
+    "no-email": 0,
+    "reminder-sent": 0,
+    "auto-paused": 0,
+    "error": 0,
+  };
+
   for (const doc of snapshot.docs) {
-    await processSinglePropertyAvailability(
+    const outcome = await processSinglePropertyAvailability(
       doc,
       db,
       resend,
@@ -376,7 +398,15 @@ async function processAllActivePropertiesAvailability(
       cutoffTimestampMs,
       isEmulator,
     );
+    outcomes[outcome]++;
   }
+
+  console.log(
+    `checkPropertyAvailability: ${snapshot.size} properties activas — ` +
+      Object.entries(outcomes)
+        .map(([outcome, count]) => `${outcome}: ${count}`)
+        .join(", "),
+  );
 }
 
 /**
