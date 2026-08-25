@@ -50,7 +50,14 @@ async function recordPhotoProcessed(
 }
 
 export const processCasaImage = onObjectFinalized(
-  {secrets: [RESEND_API_KEY]},
+  // ponytail: sin concurrency:1, Cloud Run mandaba varias fotos al mismo
+  // contenedor a la vez (rachas de uploads simultáneos), multiplicando el
+  // uso de memoria de sharp hasta tumbarlo por OOM a mitad del request —
+  // sin lanzar excepción capturable, la foto se quedaba en uploads/ para
+  // siempre. 512MiB + una foto a la vez por instancia le sobra margen a
+  // una sola decodificación (~320MB visto en prod); subir memoria si en
+  // el futuro las fotos son mucho más grandes.
+  {secrets: [RESEND_API_KEY], memory: "512MiB", concurrency: 1},
   async (event) => {
     const filePath = event.data.name;
     const match = filePath.match(UPLOAD_PATH);
