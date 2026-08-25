@@ -244,26 +244,27 @@ async function sendAvailabilityCheckReminderEmail(
 }
 
 /**
- * Auto-pausa una property cuyo owner no tiene email registrado: esperar 3
- * ciclos de recordatorio no tiene sentido si nunca va a poder recibir ni
- * responder ninguno, así que se pausa directo en el primer chequeo vencido.
+ * Marca una property como revisada sin enviar email, porque el owner no
+ * tiene una dirección registrada. Avanza `lastAvailabilityCheckAt` igual que
+ * un recordatorio enviado, para que no quede marcada como "vencida" cada día.
  * @param {DocumentReference} docRef Firestore document ref for the property.
  * @param {string} propertyId The property document ID.
+ * @param {number} reminderCount Total unanswered reminder count.
  * @return {Promise<void>}
  */
-async function autoPausePropertyWithoutEmail(
+async function markPropertyCheckedWithoutEmail(
   docRef: DocumentReference,
   propertyId: string,
+  reminderCount: number,
 ): Promise<void> {
   await docRef.update({
-    available: false,
-    autoPausedAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
+    lastAvailabilityCheckAt: FieldValue.serverTimestamp(),
+    availabilityReminderCount: FieldValue.increment(1),
   });
 
   console.log(
-    `checkPropertyAvailability: Auto-paused property ${propertyId} ` +
-      "(owner sin email registrado).",
+    "checkPropertyAvailability: Owner sin email, marcado como notificado " +
+      `#${reminderCount + 1} for ${propertyId}.`,
   );
 }
 
@@ -271,7 +272,7 @@ type AvailabilityCheckOutcome =
   | "not-due"
   | "no-owner-id"
   | "no-owner"
-  | "auto-paused-no-email"
+  | "no-email"
   | "reminder-sent"
   | "auto-paused"
   | "error";
@@ -311,10 +312,12 @@ async function processSinglePropertyAvailability(
     const owner = await fetchPropertyOwnerDetails(db, property.ownerId);
     if (!owner) return "no-owner";
 
+    const reminderCount = property.availabilityReminderCount ?? 0;
+
     const recipientEmail = resolveRecipientEmailAddress(owner, isEmulator);
     if (!recipientEmail) {
-      await autoPausePropertyWithoutEmail(doc.ref, propertyId);
-      return "auto-paused-no-email";
+      await markPropertyCheckedWithoutEmail(doc.ref, propertyId, reminderCount);
+      return "no-email";
     }
 
     const emailDetails = buildPropertyEmailDetails(
@@ -323,8 +326,6 @@ async function processSinglePropertyAvailability(
       owner,
       recipientEmail,
     );
-
-    const reminderCount = property.availabilityReminderCount ?? 0;
 
     if (hasReachedMaximumReminders(reminderCount)) {
       await autoPausePropertyAndNotifyOwner(
@@ -382,7 +383,7 @@ async function processAllActivePropertiesAvailability(
     "not-due": 0,
     "no-owner-id": 0,
     "no-owner": 0,
-    "auto-paused-no-email": 0,
+    "no-email": 0,
     "reminder-sent": 0,
     "auto-paused": 0,
     "error": 0,
