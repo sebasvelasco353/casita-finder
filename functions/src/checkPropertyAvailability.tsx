@@ -244,6 +244,31 @@ async function sendAvailabilityCheckReminderEmail(
 }
 
 /**
+ * Marca una property como revisada sin enviar email, porque el owner no
+ * tiene una dirección registrada. Avanza `lastAvailabilityCheckAt` igual que
+ * un recordatorio enviado, para que no quede marcada como "vencida" cada día.
+ * @param {DocumentReference} docRef Firestore document ref for the property.
+ * @param {string} propertyId The property document ID.
+ * @param {number} reminderCount Total unanswered reminder count.
+ * @return {Promise<void>}
+ */
+async function markPropertyCheckedWithoutEmail(
+  docRef: DocumentReference,
+  propertyId: string,
+  reminderCount: number,
+): Promise<void> {
+  await docRef.update({
+    lastAvailabilityCheckAt: FieldValue.serverTimestamp(),
+    availabilityReminderCount: FieldValue.increment(1),
+  });
+
+  console.log(
+    "checkPropertyAvailability: Owner sin email, marcado como notificado " +
+      `#${reminderCount + 1} for ${propertyId}.`,
+  );
+}
+
+/**
  * Processes availability verification for a single property document.
  * Checks eligibility, resolves owner information, and dispatches either
  * an auto-pause action or an availability reminder.
@@ -278,8 +303,13 @@ async function processSinglePropertyAvailability(
     const owner = await fetchPropertyOwnerDetails(db, property.ownerId);
     if (!owner) return;
 
+    const reminderCount = property.availabilityReminderCount ?? 0;
+
     const recipientEmail = resolveRecipientEmailAddress(owner, isEmulator);
-    if (!recipientEmail) return;
+    if (!recipientEmail) {
+      await markPropertyCheckedWithoutEmail(doc.ref, propertyId, reminderCount);
+      return;
+    }
 
     const emailDetails = buildPropertyEmailDetails(
       propertyId,
@@ -287,8 +317,6 @@ async function processSinglePropertyAvailability(
       owner,
       recipientEmail,
     );
-
-    const reminderCount = property.availabilityReminderCount ?? 0;
 
     if (hasReachedMaximumReminders(reminderCount)) {
       await autoPausePropertyAndNotifyOwner(
