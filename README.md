@@ -6,7 +6,9 @@ el propósito solidario de la iniciativa tras el terremoto en Colombia.
 No carga JavaScript,
 Firebase, autenticación, formularios, analítica ni avisos desde una base de datos.
 La política CSP bloquea scripts, conexiones de red y formularios.
-El build usa Vite sin plugins de React ni de Tailwind.
+El build usa `node scripts/build-static.cjs`, sin dependencias. Firebase ejecuta
+ese mismo script directamente en el predeploy para evitar el npm integrado
+de su CLI standalone. Vite se usa solo para desarrollo y vista previa.
 
 El código React anterior se conserva en `src/` como referencia, fuera de la entrada publicada.
 No se eliminan documentos ni archivos de producción.
