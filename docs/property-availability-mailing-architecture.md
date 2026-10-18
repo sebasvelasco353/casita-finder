@@ -1,3 +1,5 @@
+> **SISTEMA RETIRADO.** Esta documentación es histórica. El sitio publicado es estático; ver [README](../README.md) para el apagado de las funciones que sigan desplegadas.
+
 # Property Availability Confirmation & Mailing Architecture
 
 ## 1. System Overview

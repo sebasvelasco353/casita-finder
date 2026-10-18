@@ -1,117 +1,52 @@
-# Casita Finder
+# Una Casita — sitio estático
 
-A web platform for finding and managing rental properties, built with React, TypeScript, Vite, Tailwind CSS, and Firebase.
+La entrada publicada es `index.html` con `src/static.css`. Muestra el aviso de cierre definitivo por el uso comercial abusivo que desvió
+el propósito solidario de la iniciativa tras el terremoto en Colombia.
 
----
+No carga JavaScript,
+Firebase, autenticación, formularios, analítica ni avisos desde una base de datos.
+La política CSP bloquea scripts, conexiones de red y formularios.
+El build usa Vite sin plugins de React ni de Tailwind.
 
-## 📋 System Prerequisites
+El código React anterior se conserva en `src/` como referencia, fuera de la entrada publicada.
+No se eliminan documentos ni archivos de producción.
 
-Before running the project locally, ensure you have the following installed on your machine:
+## Desarrollo y build
 
-1. **Node.js** (v20+ recommended) and **npm**
-2. **Java Runtime Environment (JRE 11+)**: Required by the Firebase Local Emulator Suite (Firestore & Storage).
-
-> The Firebase CLI (`firebase-tools`) is included as a project dependency in `package.json` and is installed automatically when you run `npm install`.
-
-### Installing Java (JRE)
-- **Ubuntu / Debian:**
-  ```bash
-  sudo apt update && sudo apt install -y default-jre
-  ```
-- **macOS (Homebrew):**
-  ```bash
-  brew install openjdk
-  ```
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone & Install Dependencies
-
-```bash
-git clone https://github.com/sebasvelasco353/casita-finder.git
-cd casita-finder
-npm install
+```sh
+pnpm install
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-### 2. Environment Configuration
+El resultado está en `dist/` y se puede servir en cualquier hosting estático.
+No se necesitan variables de entorno, Java ni emuladores.
 
-Create a `.env` file in the root directory (you can copy from `.env.example`):
+## Apagado de producción (requiere acceso a Firebase)
 
-```bash
-cp .env.example .env
-```
+**Los cambios locales no detienen las funciones ya desplegadas.**
 
-For **local emulator development**, configure `.env` with the project ID and placeholder credentials:
+1. Iniciar sesión con acceso al proyecto `una-casita`:
+   `pnpm exec firebase login`.
+2. Revisar el inventario: `pnpm cloud:stop`.
+3. Detener todas las funciones del proyecto:
+   `pnpm cloud:stop --execute` (con npm: `npm run cloud:stop -- --execute`).
+   El script consulta el inventario, elimina cada función por nombre y región,
+   empezando por el proceso programado de correos, y verifica que no queden funciones.
+   Firebase CLI también elimina los jobs de Scheduler asociados a esas funciones.
+4. Publicar la página y cerrar el acceso de los clientes anteriores a Firestore y Storage:
+   `pnpm deploy:static`.
+5. Si el dominio sirve desde Vercel, publicar también `dist/` allí usando el flujo
+   habitual del proyecto. La configuración de Firebase Hosting no modifica Vercel.
+6. Comprobar la consola de Cloud Scheduler y Resend por jobs independientes,
+   correos programados previamente o en ejecución. Eliminar funciones impide nuevos
+   disparos, pero no recupera mensajes ya enviados ni cancela colas externas.
 
-```env
-VITE_FIREBASE_API_KEY=fake-api-key
-VITE_FIREBASE_AUTH_DOMAIN=una-casita.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=una-casita
-VITE_FIREBASE_STORAGE_BUCKET=una-casita.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=1234567890
-VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
-```
+`firebase.json` ya no incluye Functions. `functions/src/index.ts` no exporta
+handlers y los comandos de despliegue/emulación del paquete `functions` están bloqueados.
+Las reglas de Firestore y Storage deniegan lecturas y escrituras de clientes;
+se aplican al ejecutar `deploy:static`, sin borrar los datos existentes.
 
----
-
-## 💻 Running the Application
-
-### Start Development Server + Firebase Emulators
-
-```bash
-npm run dev
-```
-
-This starts the Firebase Emulator Suite (Auth, Firestore, Storage, Functions) with local data imported from `./emulator-data`, exports changes on exit, and launches the Vite React frontend.
-
-### Seed Database (Optional)
-
-With the emulators running, open a new terminal window to seed sample users and properties:
-
-```bash
-npm run seed
-```
-
----
-
-## 🌐 Network & Port Reference
-
-| Service | Port | Description | URL / Host |
-| :--- | :--- | :--- | :--- |
-| **Frontend (Vite)** | `5173` | React application with HMR | [http://localhost:5173](http://localhost:5173) |
-| **Firebase Emulator UI** | `4000` | Web dashboard to view Auth, Firestore & Storage | [http://localhost:4000](http://localhost:4000) |
-| **Firestore Emulator** | `8080` | Local Firestore database instance | `http://localhost:8080` |
-| **Auth Emulator** | `9099` | Local Firebase Authentication instance | `http://localhost:9099` |
-| **Storage Emulator** | `9199` | Local Cloud Storage bucket instance | `http://localhost:9199` |
-| **Functions Emulator** | `5001` | Local Cloud Functions instance | `http://localhost:5001` |
-
----
-
-## 🛠️ Troubleshooting
-
-### Port Taken Errors (e.g. `Port 8080 is not open`)
-If a background emulator or server process was not closed cleanly, kill all occupied ports:
-
-```bash
-# Linux / macOS:
-fuser -k 5173/tcp 8080/tcp 9099/tcp 9199/tcp 5001/tcp 4000/tcp 4400/tcp 4500/tcp
-
-# Or with npx:
-npx kill-port 5173 8080 9099 9199 5001 4000
-```
-
-### `auth/invalid-api-key` Error
-Ensure `.env` exists and that `VITE_FIREBASE_API_KEY` and `VITE_FIREBASE_PROJECT_ID` are not empty.
-
----
-
-## 📦 Available Scripts
-
-- `npm run dev`: Runs the Firebase emulators and Vite frontend.
-- `npm run build`: Typechecks and bundles the application for production.
-- `npm run preview`: Locally previews the production build.
-- `npm run lint`: Runs ESLint checks across the codebase.
-- `npm run seed`: Populates local Firestore and Auth emulators with mock seed data.
-- `npm run deploy:hosting`: Deploys the built frontend to Firebase Hosting.
+Documentación de referencia: [administrar y eliminar funciones](https://firebase.google.com/docs/functions/manage-functions).
+La documentación de mailing en `docs/` describe el sistema retirado.

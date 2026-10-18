@@ -1,28 +1,7 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    match /properties/{propertyId} {
-      allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if request.auth != null
-        && resource.data.ownerId == request.auth.uid;
-    }
-
-    match /casas/{casaId} {
-      allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if request.auth != null
-        && resource.data.ownerId == request.auth.uid;
-    }
-
+    // Static site: old clients cannot read personal data or trigger writes.
     match /{document=**} {
       allow read, write: if false;
     }

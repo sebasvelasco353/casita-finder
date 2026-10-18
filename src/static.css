@@ -1,0 +1,71 @@
+@charset "UTF-8";
+
+:root {
+  color-scheme: light;
+  --background: #faf6ee;
+  --ink: #243f50;
+  --muted: #506878;
+  --orange: #c85028;
+  --line: #c8d6de;
+  --paper: #ffffff;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100svh; }
+.masthead, main, .footer { width: min(1120px, calc(100% - 96px)); margin-inline: auto; }
+.masthead { background: #fdfaf6; box-shadow: 0 0 0 100vmax #fdfaf6; clip-path: inset(0 -100vmax); display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 30px; border-bottom: 1px solid var(--line); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 16px; font-weight: 900; color: var(--orange); text-decoration: none; }
+.closure-status { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.closure-status > span { width: 7px; height: 7px; background: var(--orange); border-radius: 50%; }
+.farewell { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: center; padding-block: 64px 44px; }
+h1 { font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: clamp(48px, 5.3vw, 74px); font-weight: 700; line-height: 1.06; letter-spacing: -3.5px; max-width: 12ch; margin: 0 0 26px; text-wrap: balance; }
+p { margin: 0; }
+.intro { max-width: 33ch; font-size: clamp(19px, 1.9vw, 23px); line-height: 1.5; letter-spacing: -.3px; }
+.farewell-note { color: var(--muted); max-width: 45ch; font-size: 16px; line-height: 1.7; margin-top: 18px; }
+.house-illustration { align-self: center; }
+.house-illustration > svg { display: block; width: 100%; height: auto; }
+.closure-reason { display: grid; grid-template-columns: 1fr 2fr; gap: 54px; padding: 38px 42px; background: var(--paper); border-radius: 16px; }
+.reason-heading { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.notice-symbol { display: flex; align-items: center; justify-content: center; color: var(--orange); width: 44px; height: 44px; border-radius: 50%; background: #f9eee9; }
+h2 { font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: 25px; line-height: 1.25; letter-spacing: -.7px; margin: 0; max-width: 14ch; }
+.reason-copy { font-size: 16px; line-height: 1.75; color: var(--muted); }
+.reason-copy p + p { margin-top: 16px; }
+.reason-copy strong { font-weight: 600; color: var(--ink); }
+.thank-you { text-align: center; padding: 40px 12px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--line); padding-block: 24px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.footer > span { font-family: "Trebuchet MS", sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+a:focus-visible { outline: 3px solid var(--orange); outline-offset: 6px; border-radius: 3px; }
+
+@media (max-width: 760px) {
+  .masthead, main, .footer { width: calc(100% - 40px); }
+  .masthead { padding-block: 22px; }
+  .brand { font-size: 16px; }
+  .closure-status { font-size: 11px; gap: 6px; }
+  .farewell { grid-template-columns: 1fr; padding-block: 44px 24px; gap: 6px; }
+  h1 { font-size: clamp(44px, 9vw, 66px); letter-spacing: -2px; max-width: 13ch; margin-bottom: 22px; }
+  .intro { font-size: 21px; max-width: 35ch; }
+  .farewell-note { font-size: 15px; max-width: 44ch; margin-top: 14px; }
+  .house-illustration { width: min(100%, 350px); justify-self: center; }
+  .closure-reason { grid-template-columns: 1fr; gap: 24px; padding: 28px 24px; }
+  .reason-heading { flex-direction: row; align-items: center; gap: 14px; }
+  .notice-symbol { flex-shrink: 0; }
+  h2 { font-size: 23px; }
+  .reason-copy { font-size: 15px; }
+  .thank-you { padding-block: 32px; }
+  .footer { align-items: flex-start; padding-block: 20px; }
+  .footer p { max-width: 23ch; text-align: right; }
+}
+
+@media (max-width: 360px) {
+  .masthead, main, .footer { width: calc(100% - 32px); }
+  .brand { font-size: 16px; }
+  .closure-status { font-size: 10px; }
+  h1 { font-size: 42px; }
+  .closure-reason { padding: 24px 20px; }
+}

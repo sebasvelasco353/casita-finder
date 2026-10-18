@@ -4,12 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "firebase emulators:exec --only auth,firestore,functions,storage --import=./emulator-data --export-on-exit=./emulator-data --ui \"vite\"",
-    "build": "tsc -b && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy:hosting": "firebase deploy --only hosting",
-    "seed": "tsx scripts/seed-db.ts"
+    "seed": "tsx scripts/seed-db.ts",
+    "cloud:inventory": "firebase functions:list --project una-casita",
+    "cloud:stop": "node scripts/stop-cloud-functions.mjs",
+    "deploy:static": "firebase deploy --only hosting,firestore:rules,storage --project una-casita"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
